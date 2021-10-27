@@ -1,4 +1,4 @@
-# Bats-PostgreSQL
+# Lealone-PostgreSQL
 
 基于 PostgreSQL 协议，使用 PostgreSQL 的 SQL 语法访问 Lealone 数据库
 
@@ -11,7 +11,7 @@
 
 ## 在 IDE 中运行
 
-代码导入 IDE 后，直接运行 [PgServerStart](https://github.com/lealone/Bats/blob/master/bats-postgresql/src/test/java/org/lealone/plugins/postgresql/test/PgServerStart.java) 
+代码导入 IDE 后，直接运行 [PgServerStart](https://github.com/lealone/Lealone-xSQL/blob/main/lealone-postgresql/src/test/java/org/lealone/xsql/postgresql/test/PgServerStart.java) 
 
 以下是启动成功的信息
 ```
