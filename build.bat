@@ -28,9 +28,9 @@ echo    options:
 echo    -e            mvn eclipse:eclipse
 echo    -ec           mvn eclipse:clean
 echo    -es           mvn eclipse:eclipse -DdownloadSources=true
-echo    -p            mvn package assembly:assembly -Dmaven.test.skip=true
-echo    -pc           mvn clean package assembly:assembly -Dmaven.test.skip=true
-echo    -pd           mvn package assembly:assembly -Dmaven.test.skip=true -P database
+echo    -p            mvn package -Dmaven.test.skip=true
+echo    -pc           mvn clean package -Dmaven.test.skip=true
+echo    -pd           mvn package -Dmaven.test.skip=true -P database
 echo    -i            mvn install -Dmaven.test.skip=true
 echo    -c            mvn clean
 echo    -dt           mvn dependency:tree
@@ -50,15 +50,15 @@ call mvn eclipse:eclipse -DdownloadSources=true
 goto end
 
 :p
-call mvn package assembly:assembly -Dmaven.test.skip=true
+call mvn package -Dmaven.test.skip=true
 goto end
 
 :pc
-call mvn clean package assembly:assembly -Dmaven.test.skip=true
+call mvn clean package -Dmaven.test.skip=true
 goto end
 
 :pd
-call mvn package assembly:assembly -Dmaven.test.skip=true -P database
+call mvn package -Dmaven.test.skip=true -P database
 goto end
 
 :c
@@ -78,7 +78,6 @@ set VERSION=%2
 if /i "%VERSION%" == "" goto usage
 call mvn versions:set -DnewVersion=%VERSION%
 call mvn versions:commit
-echo lealoneVersion=%VERSION%>lealone-common\src\main\resources\org\lealone\common\resources\version.properties
 goto end
 
 :end
