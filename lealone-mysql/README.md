@@ -1,4 +1,4 @@
-# Bats-MySQL
+# Lealone-MySQL
 
 基于 MySQL 协议，使用 MySQL 的 SQL 语法访问 Lealone 数据库
 
