@@ -28,6 +28,7 @@ import org.lealone.net.NetNode;
 import org.lealone.net.NetServer;
 import org.lealone.net.WritableChannel;
 import org.lealone.server.DelegatedProtocolServer;
+import org.lealone.server.ScheduleService;
 
 /**
  * This class implements a subset of the PostgreSQL protocol as described here:
@@ -119,6 +120,8 @@ public class PgServer extends DelegatedProtocolServer implements AsyncConnection
         netServer.init(config);
 
         NetNode.setLocalTcpNode(getHost(), getPort());
+        ScheduleService.init(config);
+        ScheduleService.start(); // 提前启动，LealoneDatabase要用到存储引擎
     }
 
     @Override
@@ -142,6 +145,7 @@ public class PgServer extends DelegatedProtocolServer implements AsyncConnection
         for (PgServerConnection c : new ArrayList<>(connections)) {
             c.close();
         }
+        ScheduleService.stop();
     }
 
     /**
