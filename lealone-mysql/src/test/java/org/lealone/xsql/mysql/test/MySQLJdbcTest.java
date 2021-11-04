@@ -97,7 +97,9 @@ public class MySQLJdbcTest {
             ps.setString(1, "pet1");
             rs = ps.executeQuery();
             rs.next();
-            System.out.println("PreparedStatement.executeQuery name: " + rs.getString(1) + ", age: " + rs.getInt(2));
+            String name = rs.getString(1);
+            int age = rs.getInt(2);
+            System.out.println("PreparedStatement.executeQuery name: " + name + ", age: " + age);
             rs.close();
             ps.close();
 

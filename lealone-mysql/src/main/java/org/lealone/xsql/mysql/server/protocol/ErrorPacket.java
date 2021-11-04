@@ -17,7 +17,7 @@ package org.lealone.xsql.mysql.server.protocol;
 
 import java.nio.ByteBuffer;
 
-import org.lealone.xsql.mysql.util.BufferUtil;
+import org.lealone.xsql.mysql.server.util.BufferUtil;
 
 /**
  * From server to client in response to command, if error.
@@ -37,6 +37,7 @@ import org.lealone.xsql.mysql.util.BufferUtil;
  * @author xianmao.hexm 2010-7-16 上午10:45:01
  */
 public class ErrorPacket extends ResponsePacket {
+
     public static final byte FIELD_COUNT = (byte) 0xff;
     private static final byte SQLSTATE_MARKER = (byte) '#';
     private static final byte[] DEFAULT_SQLSTATE = "HY000".getBytes();
@@ -75,5 +76,4 @@ public class ErrorPacket extends ResponsePacket {
     protected String getPacketInfo() {
         return "MySQL Error Packet";
     }
-
 }

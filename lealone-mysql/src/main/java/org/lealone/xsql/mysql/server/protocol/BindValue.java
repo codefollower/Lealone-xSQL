@@ -54,5 +54,4 @@ public class BindValue {
         this.doubleBinding = 0D;
         this.value = null;
     }
-
 }

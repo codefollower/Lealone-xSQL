@@ -19,6 +19,7 @@ package org.lealone.xsql.mysql.server.protocol;
  * @author xianmao.hexm
  */
 public class QuitPacket extends MySQLPacket {
+
     public static final byte[] QUIT = new byte[] { 1, 0, 0, 0, 1 };
 
     @Override
@@ -30,5 +31,4 @@ public class QuitPacket extends MySQLPacket {
     protected String getPacketInfo() {
         return "MySQL Quit Packet";
     }
-
 }

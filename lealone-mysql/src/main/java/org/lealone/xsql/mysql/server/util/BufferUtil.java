@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lealone.xsql.mysql.util;
+package org.lealone.xsql.mysql.server.util;
 
 import java.nio.ByteBuffer;
 
@@ -135,5 +135,4 @@ public class BufferUtil {
             return 9 + length;
         }
     }
-
 }

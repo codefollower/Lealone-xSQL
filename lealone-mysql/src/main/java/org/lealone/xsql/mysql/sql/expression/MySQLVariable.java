@@ -15,35 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lealone.xsql.mysql.server;
+package org.lealone.xsql.mysql.sql.expression;
 
-import java.util.Map;
+import org.lealone.db.session.ServerSession;
+import org.lealone.db.value.Value;
+import org.lealone.db.value.ValueInt;
+import org.lealone.sql.expression.Variable;
 
-import org.lealone.server.ProtocolServer;
-import org.lealone.server.ProtocolServerEngineBase;
+public class MySQLVariable extends Variable {
 
-public class MySQLServerEngine extends ProtocolServerEngineBase {
-
-    public static final String NAME = "MySQL";
-
-    private final MySQLServer server = new MySQLServer();
-
-    public MySQLServerEngine() {
-        super(NAME);
+    public MySQLVariable(ServerSession session, String name) {
+        super(session, name);
     }
 
     @Override
-    public ProtocolServer getProtocolServer() {
-        return server;
-    }
-
-    @Override
-    public void init(Map<String, String> config) {
-        server.init(config);
-    }
-
-    @Override
-    public void close() {
-        server.stop();
+    public Value getValue(ServerSession session) {
+        switch (getName().toLowerCase()) {
+        case "max_allowed_packet":
+        case "net_buffer_length":
+            return ValueInt.get(-1);
+        case "auto_increment_increment":
+            return ValueInt.get(1);
+        }
+        return super.getValue(session);
     }
 }

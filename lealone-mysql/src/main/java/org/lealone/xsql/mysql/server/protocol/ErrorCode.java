@@ -527,5 +527,4 @@ public interface ErrorCode {
     int ER_DROP_PARTITION_FAILURE = 1492;
     int ER_DROP_PARTITION_WHEN_FK_DEFINED = 1493;
     int ER_PLUGIN_IS_NOT_LOADED = 1494;
-
 }

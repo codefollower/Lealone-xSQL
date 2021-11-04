@@ -17,7 +17,7 @@ package org.lealone.xsql.mysql.server.protocol;
 
 import java.nio.ByteBuffer;
 
-import org.lealone.xsql.mysql.util.BufferUtil;
+import org.lealone.xsql.mysql.server.util.BufferUtil;
 
 /**
  * From Server To Client, at the end of a series of Field Packets, and at the
@@ -37,6 +37,7 @@ import org.lealone.xsql.mysql.util.BufferUtil;
  * @author xianmao.hexm 2010-7-16 上午10:55:53
  */
 public class EOFPacket extends ResponsePacket {
+
     public static final byte FIELD_COUNT = (byte) 0xfe;
 
     public byte fieldCount = FIELD_COUNT;

@@ -46,19 +46,20 @@ import org.lealone.xsql.mysql.server.protocol.AuthPacket;
 import org.lealone.xsql.mysql.server.protocol.EOFPacket;
 import org.lealone.xsql.mysql.server.protocol.ErrorPacket;
 import org.lealone.xsql.mysql.server.protocol.FieldPacket;
+import org.lealone.xsql.mysql.server.protocol.Fields;
 import org.lealone.xsql.mysql.server.protocol.HandshakePacket;
 import org.lealone.xsql.mysql.server.protocol.OkPacket;
 import org.lealone.xsql.mysql.server.protocol.PacketInput;
 import org.lealone.xsql.mysql.server.protocol.PacketOutput;
 import org.lealone.xsql.mysql.server.protocol.ResultSetHeaderPacket;
 import org.lealone.xsql.mysql.server.protocol.RowDataPacket;
-import org.lealone.xsql.mysql.util.PacketUtil;
+import org.lealone.xsql.mysql.server.util.PacketUtil;
 
 public class MySQLServerConnection extends AsyncConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(MySQLServerConnection.class);
-    public static final int BUFFER_SIZE = 16 * 1024;
     private static final byte[] AUTH_OK = new byte[] { 7, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 };
+    public static final int BUFFER_SIZE = 16 * 1024;
 
     private final MySQLServer server;
     private Session session;
@@ -144,7 +145,8 @@ public class MySQLServerConnection extends AsyncConnection {
         header.packetId = ++packetId;
         // packetId++;
         for (int i = 0; i < fieldCount; i++) {
-            fields[i] = PacketUtil.getField(result.getColumnName(i), result.getColumnType(i));
+            fields[i] = PacketUtil.getField(result.getColumnName(i).toLowerCase(),
+                    Fields.toMySQLType(result.getColumnType(i)));
             fields[i].packetId = ++packetId;
         }
         eof.packetId = ++packetId;

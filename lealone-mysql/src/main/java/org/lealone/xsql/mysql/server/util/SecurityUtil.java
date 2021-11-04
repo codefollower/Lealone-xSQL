@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lealone.xsql.mysql.util;
+package org.lealone.xsql.mysql.server.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -90,5 +90,4 @@ public class SecurityUtil {
         result[1] = nr2 & 0x7fffffffL;
         return result;
     }
-
 }

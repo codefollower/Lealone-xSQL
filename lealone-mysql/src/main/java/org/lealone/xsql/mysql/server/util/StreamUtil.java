@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lealone.xsql.mysql.util;
+package org.lealone.xsql.mysql.server.util;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -24,6 +24,7 @@ import java.io.OutputStream;
  * @author xianmao.hexm 2011-5-5 下午09:34:11
  */
 public class StreamUtil {
+
     private static final long NULL_LENGTH = -1;
     private static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -227,5 +228,4 @@ public class StreamUtil {
         }
         out.write(src);
     }
-
 }

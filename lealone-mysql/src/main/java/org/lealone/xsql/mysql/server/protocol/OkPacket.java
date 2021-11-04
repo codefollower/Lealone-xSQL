@@ -17,7 +17,7 @@ package org.lealone.xsql.mysql.server.protocol;
 
 import java.nio.ByteBuffer;
 
-import org.lealone.xsql.mysql.util.BufferUtil;
+import org.lealone.xsql.mysql.server.util.BufferUtil;
 
 /**
  * From server to client in response to command, if no error and no result set.
@@ -38,6 +38,7 @@ import org.lealone.xsql.mysql.util.BufferUtil;
  * @author xianmao.hexm 2010-7-16 上午10:33:50
  */
 public class OkPacket extends ResponsePacket {
+
     public static final byte FIELD_COUNT = 0x00;
     public static final byte[] OK = new byte[] { 7, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0 };
 
@@ -80,5 +81,4 @@ public class OkPacket extends ResponsePacket {
     protected String getPacketInfo() {
         return "MySQL OK Packet";
     }
-
 }

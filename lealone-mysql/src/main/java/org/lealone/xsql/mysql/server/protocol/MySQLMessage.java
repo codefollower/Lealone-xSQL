@@ -26,6 +26,7 @@ import java.util.Calendar;
  * @author xianmao.hexm
  */
 public class MySQLMessage {
+
     public static final long NULL_LENGTH = -1;
     private static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -346,5 +347,4 @@ public class MySQLMessage {
         }
         return cal;
     }
-
 }

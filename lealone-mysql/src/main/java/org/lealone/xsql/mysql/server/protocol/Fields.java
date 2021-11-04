@@ -15,10 +15,14 @@
  */
 package org.lealone.xsql.mysql.server.protocol;
 
+import org.lealone.common.exceptions.DbException;
+import org.lealone.db.value.Value;
+
 /**
  * 字段类型及标识定义
  * 
  * @author xianmao.hexm
+ * @author zhh
  */
 public interface Fields {
 
@@ -65,4 +69,54 @@ public interface Fields {
     int TIMESTAMP_FLAG = 0x0400;
     int SET_FLAG = 0x0800;
 
+    public static int toMySQLType(int valueType) {
+        switch (valueType) {
+        case Value.BOOLEAN:
+            return FIELD_TYPE_TINY;
+        case Value.BYTE:
+            return FIELD_TYPE_TINY;
+        case Value.SHORT:
+            return FIELD_TYPE_SHORT;
+        case Value.INT:
+            return FIELD_TYPE_LONG;
+        case Value.LONG:
+            return FIELD_TYPE_LONGLONG;
+        case Value.DECIMAL:
+            return FIELD_TYPE_DECIMAL;
+        case Value.TIME:
+            return FIELD_TYPE_TIME;
+        case Value.DATE:
+            return FIELD_TYPE_DATE;
+        case Value.TIMESTAMP:
+            return FIELD_TYPE_TIMESTAMP;
+        case Value.BYTES:
+        case Value.UUID:
+            return FIELD_TYPE_BLOB;
+        case Value.STRING:
+        case Value.STRING_IGNORECASE:
+        case Value.STRING_FIXED:
+            return FIELD_TYPE_STRING;
+        case Value.BLOB:
+            return FIELD_TYPE_BLOB;
+        case Value.CLOB:
+            return FIELD_TYPE_STRING;
+        case Value.DOUBLE:
+            return FIELD_TYPE_DOUBLE;
+        case Value.FLOAT:
+            return FIELD_TYPE_FLOAT;
+        case Value.NULL:
+            return FIELD_TYPE_STRING;
+        case Value.JAVA_OBJECT:
+            return FIELD_TYPE_STRING;
+        case Value.UNKNOWN:
+            // anything
+            return FIELD_TYPE_STRING;
+        case Value.ARRAY:
+            return FIELD_TYPE_STRING;
+        case Value.RESULT_SET:
+            return FIELD_TYPE_STRING;
+        default:
+            throw DbException.getInternalError("type=" + valueType);
+        }
+    }
 }

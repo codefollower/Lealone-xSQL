@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lealone.xsql.mysql.util;
+package org.lealone.xsql.mysql.server.util;
 
 /**
  * 处理能力标识定义
@@ -101,4 +101,5 @@ public interface Capabilities {
     // 当打开CLIENT_MULTI_STATEMENTS时，这个标志自动的被打开。
     int CLIENT_MULTI_RESULTS = 131072;
 
+    int CLIENT_PLUGIN_AUTH = 0x00080000;
 }

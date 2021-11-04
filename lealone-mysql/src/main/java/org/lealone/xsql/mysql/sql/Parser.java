@@ -142,7 +142,6 @@ import org.lealone.sql.expression.Rownum;
 import org.lealone.sql.expression.SelectOrderBy;
 import org.lealone.sql.expression.SequenceValue;
 import org.lealone.sql.expression.ValueExpression;
-import org.lealone.sql.expression.Variable;
 import org.lealone.sql.expression.Wildcard;
 import org.lealone.sql.expression.aggregate.AGroupConcat;
 import org.lealone.sql.expression.aggregate.Aggregate;
@@ -168,6 +167,7 @@ import org.lealone.sql.optimizer.TableFilter.TableFilterVisitor;
 import org.lealone.sql.query.Query;
 import org.lealone.sql.query.Select;
 import org.lealone.sql.query.SelectUnion;
+import org.lealone.xsql.mysql.sql.expression.MySQLVariable;
 
 /**
  * The parser is used to convert a SQL statement string to an command object.
@@ -2509,7 +2509,7 @@ public class Parser implements SQLParser {
                 readIf(".");
                 vname = readAliasIdentifier();
             }
-            r = new Variable(session, vname);
+            r = new MySQLVariable(session, vname);
             if (readIf(":=")) {
                 Expression value = readExpression();
                 Function function = Function.getFunction(database, "SET");

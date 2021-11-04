@@ -19,6 +19,7 @@ package org.lealone.xsql.mysql.server.protocol;
  * @author xianmao.hexm 2012-4-28
  */
 public class PingPacket extends MySQLPacket {
+
     public static final byte[] PING = new byte[] { 1, 0, 0, 0, 14 };
 
     @Override
@@ -30,5 +31,4 @@ public class PingPacket extends MySQLPacket {
     protected String getPacketInfo() {
         return "MySQL Ping Packet";
     }
-
 }

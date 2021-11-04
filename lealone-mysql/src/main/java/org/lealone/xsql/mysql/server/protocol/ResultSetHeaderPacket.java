@@ -17,7 +17,7 @@ package org.lealone.xsql.mysql.server.protocol;
 
 import java.nio.ByteBuffer;
 
-import org.lealone.xsql.mysql.util.BufferUtil;
+import org.lealone.xsql.mysql.server.util.BufferUtil;
 
 /**
  * From server to client after command, if no error and result set -- that is,

@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lealone.xsql.mysql.util.BufferUtil;
+import org.lealone.xsql.mysql.server.util.BufferUtil;
 
 /**
  * From server to client. One packet for each row in the result set.
@@ -44,6 +44,7 @@ import org.lealone.xsql.mysql.util.BufferUtil;
  * @author xianmao.hexm 2010-7-23 上午01:05:55
  */
 public class RowDataPacket extends ResponsePacket {
+
     private static final byte NULL_MARK = (byte) 251;
 
     public final int fieldCount;

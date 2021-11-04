@@ -17,7 +17,7 @@ package org.lealone.xsql.mysql.server.protocol;
 
 import java.nio.ByteBuffer;
 
-import org.lealone.xsql.mysql.util.BufferUtil;
+import org.lealone.xsql.mysql.server.util.BufferUtil;
 
 /**
  * <pre>
@@ -85,5 +85,4 @@ public class PreparedOkPacket extends MySQLPacket {
     protected String getPacketInfo() {
         return "MySQL PreparedOk Packet";
     }
-
 }

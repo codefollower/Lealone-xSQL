@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lealone.xsql.mysql.util;
+package org.lealone.xsql.mysql.server.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,7 @@ import java.util.Map;
  * @author xianmao.hexm 2010-8-3 下午06:12:53
  */
 public class CharsetUtil {
+
     private static final String[] INDEX_TO_CHARSET = new String[99];
     private static final String[] INDEX_TO_DB_CHARSET = new String[99];
     private static final Map<String, Integer> CHARSET_TO_INDEX = new HashMap<String, Integer>();
@@ -270,5 +271,4 @@ public class CharsetUtil {
             return (i == null) ? 0 : i.intValue();
         }
     }
-
 }

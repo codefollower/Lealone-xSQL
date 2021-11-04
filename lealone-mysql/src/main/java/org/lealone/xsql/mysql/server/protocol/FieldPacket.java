@@ -17,7 +17,7 @@ package org.lealone.xsql.mysql.server.protocol;
 
 import java.nio.ByteBuffer;
 
-import org.lealone.xsql.mysql.util.BufferUtil;
+import org.lealone.xsql.mysql.server.util.BufferUtil;
 
 /**
  * From Server To Client, part of Result Set Packets. One for each column in the
@@ -48,6 +48,7 @@ import org.lealone.xsql.mysql.util.BufferUtil;
  * @author xianmao.hexm 2010-7-22 下午05:43:34
  */
 public class FieldPacket extends ResponsePacket {
+
     private static final byte[] DEFAULT_CATALOG = "def".getBytes();
     private static final byte[] FILLER = new byte[2];
 

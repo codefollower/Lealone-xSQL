@@ -19,10 +19,10 @@ import java.nio.ByteBuffer;
 
 import org.lealone.common.util.Utils;
 import org.lealone.db.Constants;
-import org.lealone.xsql.mysql.util.BufferUtil;
-import org.lealone.xsql.mysql.util.Capabilities;
-import org.lealone.xsql.mysql.util.CharsetUtil;
-import org.lealone.xsql.mysql.util.RandomUtil;
+import org.lealone.xsql.mysql.server.util.BufferUtil;
+import org.lealone.xsql.mysql.server.util.Capabilities;
+import org.lealone.xsql.mysql.server.util.CharsetUtil;
+import org.lealone.xsql.mysql.server.util.RandomUtil;
 
 /**
  * From server to client during initial handshake.
@@ -45,9 +45,13 @@ import org.lealone.xsql.mysql.util.RandomUtil;
  * </pre>
  * 
  * @author xianmao.hexm 2010-7-14 下午05:18:15
+ * @author zhh
  */
 public class HandshakePacket extends ResponsePacket {
-    private static final byte[] FILLER_13 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    private static final byte[] FILLER_10 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private final static byte[] mysql_native_password = "mysql_native_password".getBytes();
+    private final byte[] authPluginDataPart2 = RandomUtil.randomBytes(12);
 
     public byte protocolVersion;
     public byte[] serverVersion;
@@ -70,8 +74,11 @@ public class HandshakePacket extends ResponsePacket {
         BufferUtil.writeUB2(buffer, serverCapabilities);
         buffer.put(serverCharsetIndex);
         BufferUtil.writeUB2(buffer, serverStatus);
-        buffer.put(FILLER_13);
-        // buffer.position(buffer.position() + 13);
+        BufferUtil.writeUB2(buffer, Capabilities.CLIENT_PLUGIN_AUTH >> 16);
+        buffer.put((byte) (20 + 1));
+        buffer.put(FILLER_10);
+        BufferUtil.writeWithNull(buffer, authPluginDataPart2);
+        BufferUtil.writeWithNull(buffer, mysql_native_password);
         BufferUtil.writeWithNull(buffer, restOfScrambleBuff);
         out.write(buffer);
     }
@@ -85,6 +92,9 @@ public class HandshakePacket extends ResponsePacket {
         size += 19;// 1+2+1+2+13
         size += restOfScrambleBuff.length;// 12
         size += 1;// 1
+
+        size += authPluginDataPart2.length + 1;
+        size += mysql_native_password.length + 1;
         return size;
     }
 
@@ -99,10 +109,10 @@ public class HandshakePacket extends ResponsePacket {
         byte[] rand2 = RandomUtil.randomBytes(12);
 
         // 保存认证数据
-        byte[] seed = new byte[rand1.length + rand2.length];
-        System.arraycopy(rand1, 0, seed, 0, rand1.length);
-        System.arraycopy(rand2, 0, seed, rand1.length, rand2.length);
-        seed0 = seed;
+        // byte[] seed = new byte[rand1.length + rand2.length];
+        // System.arraycopy(rand1, 0, seed, 0, rand1.length);
+        // System.arraycopy(rand2, 0, seed, rand1.length, rand2.length);
+        // seed0 = seed;
 
         // 发送握手数据包
         HandshakePacket hs = new HandshakePacket();
@@ -118,15 +128,16 @@ public class HandshakePacket extends ResponsePacket {
         return hs;
     }
 
-    static byte[] seed0;
+    // private static byte[] seed0;
+
     /** 协议版本 */
-    static byte PROTOCOL_VERSION = 10;
+    private static byte PROTOCOL_VERSION = 10;
 
     /** 服务器版本 */
-    static byte[] SERVER_VERSION = ("5.1.48-" + Constants.PROJECT_NAME + "-" + Utils.getReleaseVersionString())
-            .getBytes();
+    private static byte[] SERVER_VERSION = ("5.1.48-" + //
+            Constants.PROJECT_NAME + "-" + Utils.getReleaseVersionString()).getBytes();
 
-    static int getServerCapabilities() {
+    private static int getServerCapabilities() {
         int flag = 0;
         flag |= Capabilities.CLIENT_LONG_PASSWORD;
         flag |= Capabilities.CLIENT_FOUND_ROWS;

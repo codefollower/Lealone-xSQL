@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lealone.xsql.mysql.util;
+package org.lealone.xsql.mysql.server.util;
 
 import java.io.UnsupportedEncodingException;
 
@@ -26,6 +26,7 @@ import org.lealone.xsql.mysql.server.protocol.ResultSetHeaderPacket;
  * @author xianmao.hexm
  */
 public class PacketUtil {
+
     private static final String CODE_PAGE_1252 = "Cp1252";
 
     public static final ResultSetHeaderPacket getHeader(int fieldCount) {
@@ -78,5 +79,4 @@ public class PacketUtil {
     // field.packetLength = field.calcPacketSize();
     // return field;
     // }
-
 }

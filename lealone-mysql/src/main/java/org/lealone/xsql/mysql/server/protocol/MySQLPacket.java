@@ -196,5 +196,4 @@ public abstract class MySQLPacket {
         return new StringBuilder().append(getPacketInfo()).append("{length=").append(packetLength).append(",id=")
                 .append(packetId).append('}').toString();
     }
-
 }
