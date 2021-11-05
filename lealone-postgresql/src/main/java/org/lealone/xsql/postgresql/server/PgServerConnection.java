@@ -678,7 +678,7 @@ public class PgServerConnection extends AsyncConnection {
         sendParameterStatus("integer_datetimes", "off");
         sendParameterStatus("is_superuser", "off");
         sendParameterStatus("server_encoding", "SQL_ASCII");
-        sendParameterStatus("server_version", "8.1.4");
+        sendParameterStatus("server_version", "8.2.23");
         sendParameterStatus("session_authorization", userName);
         sendParameterStatus("standard_conforming_strings", "off");
         // TODO PostgreSQL TimeZone
