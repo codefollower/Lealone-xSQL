@@ -298,8 +298,9 @@ public class PgServerConnection extends AsyncConnection {
                 if (result) {
                     try {
                         ResultSet rs = prep.getResultSet();
-                        ResultSetMetaData meta = rs.getMetaData();
-                        sendRowDescription(meta);
+                        // 不需要发送RowDescription
+                        // ResultSetMetaData meta = rs.getMetaData();
+                        // sendRowDescription(meta);
                         while (rs.next()) {
                             sendDataRow(rs);
                         }
