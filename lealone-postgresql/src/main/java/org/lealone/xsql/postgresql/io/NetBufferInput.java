@@ -57,6 +57,7 @@ public class NetBufferInput implements AutoCloseable {
     }
 
     public final void readFully(byte b[], int off, int len) {
-        buffer.read(b, off, len);
+        for (int i = off; i < len; i++)
+            b[i] = readByte();
     }
 }
