@@ -2,6 +2,7 @@
 
 基于 MySQL 协议，使用 MySQL 的 SQL 语法访问 Lealone 数据库
 
+协议版本支持 5.x 到 8.x 系列
 
 
 ## 开发环境

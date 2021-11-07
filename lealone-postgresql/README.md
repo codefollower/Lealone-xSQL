@@ -2,6 +2,8 @@
 
 基于 PostgreSQL 协议，使用 PostgreSQL 的 SQL 语法访问 Lealone 数据库
 
+PostgreSQL JDBC Driver 支持 9.x 和 42.x 两个系列版本
+
 
 ## 开发环境
 
