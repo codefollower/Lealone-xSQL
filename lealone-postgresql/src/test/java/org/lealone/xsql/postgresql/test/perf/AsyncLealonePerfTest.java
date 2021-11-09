@@ -6,24 +6,25 @@
 package org.lealone.xsql.postgresql.test.perf;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.Statement;
-import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-//-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -Xmx800M
-public abstract class PerfTest {
+import org.lealone.client.jdbc.JdbcStatement;
+import org.lealone.db.Constants;
 
-    public static Connection getConnection(int port, String user, String password) throws Exception {
-        String url = "jdbc:postgresql://localhost:" + port + "/test";
-        return getConnection(url, user, password);
-    }
+public class AsyncLealonePerfTest extends PerfTest {
 
-    public static Connection getConnection(String url, String user, String password) throws Exception {
-        Properties info = new Properties();
-        info.put("user", user);
-        info.put("password", password);
-        return DriverManager.getConnection(url, info);
+    public static void main(String[] args) throws Throwable {
+        String url = "jdbc:lealone:tcp://localhost:" + Constants.DEFAULT_TCP_PORT + "/lealone";
+        Connection conn = getConnection(url, "root", "");
+        Statement statement = conn.createStatement();
+        statement.executeUpdate("set QUERY_CACHE_SIZE 0;");
+
+        // PerfTest.run("AsyncLealone", statement);
+        run("AsyncLealone", statement);
+        statement.close();
+        conn.close();
     }
 
     public static void run(String name, Statement statement) throws Throwable {
@@ -32,11 +33,16 @@ public abstract class PerfTest {
         for (int i = 0; i < count * 5; i++)
             statement.executeQuery(sql);
 
+        JdbcStatement stmt = (JdbcStatement) statement;
         int loop = 20;
         for (int j = 0; j < loop; j++) {
+            CountDownLatch latch = new CountDownLatch(count);
             long t1 = System.nanoTime();
             for (int i = 0; i < count; i++)
-                statement.executeQuery(sql);
+                stmt.executeQueryAsync(sql).onComplete(ar -> {
+                    latch.countDown();
+                });
+            latch.await();
             long t2 = System.nanoTime();
             System.out.println(name + ": " + TimeUnit.NANOSECONDS.toMicros(t2 - t1) / count);
         }
