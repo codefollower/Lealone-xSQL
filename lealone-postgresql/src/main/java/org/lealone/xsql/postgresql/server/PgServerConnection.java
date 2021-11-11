@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
@@ -69,6 +70,8 @@ public class PgServerConnection extends AsyncConnection {
     private String dateStyle = "ISO";
     private final HashMap<String, Prepared> prepared = new CaseInsensitiveMap<Prepared>();
     private final HashMap<String, Portal> portals = new CaseInsensitiveMap<Portal>();
+    private final ArrayList<NetBufferOutput> outList = new ArrayList<>();
+    private boolean isQuery;
 
     protected PgServerConnection(PgServer server, WritableChannel writableChannel, boolean isServer) {
         super(writableChannel, isServer);
@@ -118,6 +121,7 @@ public class PgServerConnection extends AsyncConnection {
     }
 
     private void process(int x) throws IOException {
+        isQuery = false;
         switchBlock: switch (x) {
         case 0:
             server.trace("Init");
@@ -322,6 +326,7 @@ public class PgServerConnection extends AsyncConnection {
             break;
         }
         case 'Q': {
+            isQuery = true;
             server.trace("Query");
             String query = readString();
             ScriptReader reader = new ScriptReader(new StringReader(query));
@@ -358,6 +363,7 @@ public class PgServerConnection extends AsyncConnection {
                     JdbcUtils.closeSilently(stat);
                 }
             }
+            isQuery = false;
             sendReadyForQuery();
             break;
         }
@@ -750,7 +756,17 @@ public class PgServerConnection extends AsyncConnection {
 
     private void sendMessage() {
         out.setInt(1, out.length() - 1); // 回填
-        out.flush();
+        if (isQuery) {
+            outList.add(out);
+            out = new NetBufferOutput(writableChannel, BUFFER_SIZE);
+        } else {
+            if (!outList.isEmpty()) {
+                for (NetBufferOutput o : outList)
+                    o.flush();
+                outList.clear();
+            }
+            out.flush();
+        }
     }
 
     private void sendParameterStatus(String param, String value) {
