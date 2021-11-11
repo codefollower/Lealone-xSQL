@@ -121,7 +121,6 @@ protocol_server_engines:
         port: 9310,
         trace: false,
         allow_others: true,
-        use_event_loop: true,
         daemon: false,
         ssl: false
     }
