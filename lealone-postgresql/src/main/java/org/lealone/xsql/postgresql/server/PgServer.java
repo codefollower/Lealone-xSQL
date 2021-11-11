@@ -29,6 +29,7 @@ import org.lealone.net.NetServer;
 import org.lealone.net.WritableChannel;
 import org.lealone.server.DelegatedProtocolServer;
 import org.lealone.server.ScheduleService;
+import org.lealone.server.Scheduler;
 
 /**
  * This class implements a subset of the PostgreSQL protocol as described here:
@@ -381,6 +382,8 @@ public class PgServer extends DelegatedProtocolServer implements AsyncConnection
         PgServerConnection conn = new PgServerConnection(this, writableChannel, isServer);
         connections.add(conn);
         conn.setProcessId(connections.size());
+        Scheduler scheduler = ScheduleService.getSchedulerForSession();
+        scheduler.register(conn);
         return conn;
 
     }

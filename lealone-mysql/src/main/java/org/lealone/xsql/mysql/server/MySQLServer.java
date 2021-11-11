@@ -33,6 +33,7 @@ import org.lealone.net.NetServer;
 import org.lealone.net.WritableChannel;
 import org.lealone.server.DelegatedProtocolServer;
 import org.lealone.server.ScheduleService;
+import org.lealone.server.Scheduler;
 
 public class MySQLServer extends DelegatedProtocolServer implements AsyncConnectionManager {
 
@@ -107,6 +108,8 @@ public class MySQLServer extends DelegatedProtocolServer implements AsyncConnect
     @Override
     public synchronized AsyncConnection createConnection(WritableChannel writableChannel, boolean isServer) {
         MySQLServerConnection conn = new MySQLServerConnection(this, writableChannel, isServer);
+        Scheduler scheduler = ScheduleService.getSchedulerForSession();
+        scheduler.register(conn);
         conn.handshake();
         return conn;
     }
