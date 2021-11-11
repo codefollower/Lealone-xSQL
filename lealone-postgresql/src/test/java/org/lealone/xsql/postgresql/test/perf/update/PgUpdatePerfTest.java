@@ -3,18 +3,18 @@
  * Licensed under the Server Side Public License, v 1.
  * Initial Developer: zhh
  */
-package org.lealone.xsql.postgresql.test.perf;
+package org.lealone.xsql.postgresql.test.perf.update;
 
 import java.sql.Connection;
 import java.sql.Statement;
 
-public class PgPerfTest extends PerfTest {
+public class PgUpdatePerfTest extends UpdatePerfTest {
 
     public static void main(String[] args) throws Throwable {
         Connection conn = getConnection(5432, "postgres", "zhh");
         Statement statement = conn.createStatement();
 
-        PerfTest.run("Pg", statement);
+        UpdatePerfTest.run("PgUpdate", statement);
         statement.close();
         conn.close();
     }
