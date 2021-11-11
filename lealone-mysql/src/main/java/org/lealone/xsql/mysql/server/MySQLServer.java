@@ -110,7 +110,7 @@ public class MySQLServer extends DelegatedProtocolServer implements AsyncConnect
         MySQLServerConnection conn = new MySQLServerConnection(this, writableChannel, isServer);
         Scheduler scheduler = ScheduleService.getSchedulerForSession();
         scheduler.register(conn);
-        conn.handshake();
+        scheduler.handle(() -> conn.handshake());
         return conn;
     }
 
