@@ -57,6 +57,7 @@ public class MySQLServer extends DelegatedProtocolServer implements AsyncConnect
     public void init(Map<String, String> config) {
         if (!config.containsKey("port"))
             config.put("port", String.valueOf(DEFAULT_PORT));
+        config.put("name", getName());
 
         NetFactory factory = NetFactoryManager.getFactory(config);
         NetServer netServer = factory.createNetServer();

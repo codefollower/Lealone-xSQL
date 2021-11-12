@@ -111,7 +111,7 @@ public class PgServer extends DelegatedProtocolServer implements AsyncConnection
     public void init(Map<String, String> config) {
         if (!config.containsKey("port"))
             config.put("port", String.valueOf(DEFAULT_PORT));
-
+        config.put("name", getName());
         trace = Boolean.parseBoolean(config.get("trace"));
 
         NetFactory factory = NetFactoryManager.getFactory(config);
