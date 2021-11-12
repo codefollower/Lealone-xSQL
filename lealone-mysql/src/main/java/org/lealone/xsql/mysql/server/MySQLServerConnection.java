@@ -72,8 +72,7 @@ public class MySQLServerConnection extends AsyncConnection {
     }
 
     // 客户端连上来后，数据库先发回一个握手包
-    void handshake() {
-        int threadId = 0;
+    void handshake(int threadId) {
         PacketOutput output = getPacketOutput();
         HandshakePacket.create(threadId).write(output);
         // 接着创建一个AuthPacketHandler用来鉴别是否是合法的用户

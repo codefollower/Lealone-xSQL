@@ -56,7 +56,9 @@ public class MySQLServer extends AsyncServer<MySQLServerConnection> {
 
     @Override
     protected void onConnectionCreated(MySQLServerConnection conn, Scheduler scheduler) {
+        String name = scheduler.getName();
+        int threadId = Integer.parseInt(name.substring(name.indexOf('-') + 1));
         // 连接创建成功后先握手
-        scheduler.handle(() -> conn.handshake());
+        scheduler.handle(() -> conn.handshake(threadId));
     }
 }
