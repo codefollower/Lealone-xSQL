@@ -66,8 +66,8 @@ public class MySQLServerConnection extends AsyncConnection {
     private PacketHandler packetHandler;
     private AuthPacket authPacket;
 
-    protected MySQLServerConnection(MySQLServer server, WritableChannel writableChannel, boolean isServer) {
-        super(writableChannel, isServer);
+    protected MySQLServerConnection(MySQLServer server, WritableChannel writableChannel) {
+        super(writableChannel, true);
         this.server = server;
     }
 
@@ -88,9 +88,9 @@ public class MySQLServerConnection extends AsyncConnection {
             logger.error("Failed to create session", e);
             sendErrorMessage(e);
             close();
+            server.removeConnection(this);
             return;
         }
-        server.addConnection(this);
         // 鉴别成功后创建CommandPacketHandler用来处理各种命令(包括SQL)
         packetHandler = new CommandPacketHandler(this);
         sendMessage(AUTH_OK);

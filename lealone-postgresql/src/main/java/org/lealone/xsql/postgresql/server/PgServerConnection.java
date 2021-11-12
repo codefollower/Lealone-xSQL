@@ -48,6 +48,11 @@ import org.lealone.xsql.postgresql.io.NetBufferOutput;
 /**
  * One server connection is opened for each client.
  * 
+ * This class implements a subset of the PostgreSQL protocol as described here:
+ * http://developer.postgresql.org/pgdocs/postgres/protocol.html
+ * The PostgreSQL catalog is described here:
+ * http://www.postgresql.org/docs/7.4/static/catalogs.html
+ * 
  * @author H2 Group
  * @author zhh
  */
@@ -73,8 +78,8 @@ public class PgServerConnection extends AsyncConnection {
     private final ArrayList<NetBufferOutput> outList = new ArrayList<>();
     private boolean isQuery;
 
-    protected PgServerConnection(PgServer server, WritableChannel writableChannel, boolean isServer) {
-        super(writableChannel, isServer);
+    protected PgServerConnection(PgServer server, WritableChannel writableChannel) {
+        super(writableChannel, true);
         this.server = server;
     }
 
@@ -498,7 +503,7 @@ public class PgServerConnection extends AsyncConnection {
                 if (p.paramType != null && p.paramType[i] != 0) {
                     type = p.paramType[i];
                 } else {
-                    type = PgServer.PG_TYPE_VARCHAR;
+                    type = PgType.PG_TYPE_VARCHAR;
                 }
                 server.checkType(type);
                 writeInt(type);
@@ -526,7 +531,7 @@ public class PgServerConnection extends AsyncConnection {
                 String name = meta.getColumnName(i + 1);
                 names[i] = name;
                 int type = meta.getColumnType(i + 1);
-                type = PgServer.convertType(type);
+                type = PgType.convertType(type);
                 // the ODBC client needs the column pg_catalog.pg_index
                 // to be of type 'int2vector'
                 // if (name.equalsIgnoreCase("indkey") &&
@@ -560,7 +565,7 @@ public class PgServerConnection extends AsyncConnection {
 
     private static int getTypeSize(int pgType, int precision) {
         switch (pgType) {
-        case PgServer.PG_TYPE_VARCHAR:
+        case PgType.PG_TYPE_VARCHAR:
             return Math.max(255, precision + 10);
         default:
             return precision + 4;
@@ -607,6 +612,7 @@ public class PgServerConnection extends AsyncConnection {
                 if (!tableFound) {
                     installPgCatalog(stat);
                 }
+                JdbcUtils.closeSilently(rs);
                 rs = stat.executeQuery("SELECT * FROM PG_CATALOG.PG_VERSION");
                 if (!rs.next() || rs.getInt(1) < 2) {
                     // installation incomplete, or old version
@@ -618,6 +624,7 @@ public class PgServerConnection extends AsyncConnection {
                         throw DbException.throwInternalError("Incompatible PG_VERSION");
                     }
                 }
+                JdbcUtils.closeSilently(rs);
             }
             stat.execute("set search_path = PUBLIC, pg_catalog");
             HashSet<Integer> typeSet = server.getTypeSet();
@@ -626,10 +633,10 @@ public class PgServerConnection extends AsyncConnection {
                 while (rs.next()) {
                     typeSet.add(rs.getInt(1));
                 }
+                JdbcUtils.closeSilently(rs);
             }
         } finally {
             JdbcUtils.closeSilently(stat);
-            JdbcUtils.closeSilently(rs);
         }
     }
 

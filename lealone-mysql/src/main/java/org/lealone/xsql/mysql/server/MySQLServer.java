@@ -17,36 +17,17 @@
  */
 package org.lealone.xsql.mysql.server;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.lealone.db.LealoneDatabase;
-import org.lealone.net.AsyncConnection;
-import org.lealone.net.AsyncConnectionManager;
-import org.lealone.net.NetFactory;
-import org.lealone.net.NetFactoryManager;
-import org.lealone.net.NetNode;
-import org.lealone.net.NetServer;
 import org.lealone.net.WritableChannel;
-import org.lealone.server.DelegatedProtocolServer;
-import org.lealone.server.ScheduleService;
+import org.lealone.server.AsyncServer;
 import org.lealone.server.Scheduler;
 
-public class MySQLServer extends DelegatedProtocolServer implements AsyncConnectionManager {
+public class MySQLServer extends AsyncServer<MySQLServerConnection> {
 
     public static final String DATABASE_NAME = "mysql";
     public static final int DEFAULT_PORT = 9310;
-
-    private final Set<MySQLServerConnection> connections = Collections
-            .synchronizedSet(new HashSet<MySQLServerConnection>());
-
-    @Override
-    public String getName() {
-        return getClass().getSimpleName();
-    }
 
     @Override
     public String getType() {
@@ -55,68 +36,27 @@ public class MySQLServer extends DelegatedProtocolServer implements AsyncConnect
 
     @Override
     public void init(Map<String, String> config) {
-        if (!config.containsKey("port"))
-            config.put("port", String.valueOf(DEFAULT_PORT));
-        config.put("name", getName());
+        super.init(config);
 
-        NetFactory factory = NetFactoryManager.getFactory(config);
-        NetServer netServer = factory.createNetServer();
-        netServer.setConnectionManager(this);
-        setProtocolServer(netServer);
-        netServer.init(config);
-
-        NetNode.setLocalTcpNode(getHost(), getPort());
-        ScheduleService.init(config);
-        ScheduleService.start(); // 提前启动，LealoneDatabase要用到存储引擎
-    }
-
-    private void createDatabase() {
+        // 创建默认的 mysql 数据库
         String sql = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME //
                 + " PARAMETERS(DEFAULT_SQL_ENGINE='" + MySQLServerEngine.NAME + "')";
         LealoneDatabase.getInstance().getSystemSession().prepareStatementLocal(sql).executeUpdate();
     }
 
     @Override
-    public boolean runInMainThread() {
-        return protocolServer.runInMainThread();
+    protected int getDefaultPort() {
+        return DEFAULT_PORT;
     }
 
     @Override
-    public synchronized void start() {
-        if (isStarted())
-            return;
-        super.start();
-
-        createDatabase();
+    protected MySQLServerConnection createConnection(WritableChannel writableChannel, Scheduler scheduler) {
+        return new MySQLServerConnection(this, writableChannel);
     }
 
     @Override
-    public synchronized void stop() {
-        if (isStopped())
-            return;
-        super.stop();
-
-        for (MySQLServerConnection c : new ArrayList<>(connections)) {
-            c.close();
-        }
-        ScheduleService.stop();
-    }
-
-    public synchronized void addConnection(MySQLServerConnection conn) {
-        connections.add(conn);
-    }
-
-    @Override
-    public synchronized AsyncConnection createConnection(WritableChannel writableChannel, boolean isServer) {
-        MySQLServerConnection conn = new MySQLServerConnection(this, writableChannel, isServer);
-        Scheduler scheduler = ScheduleService.getSchedulerForSession();
-        scheduler.register(conn);
+    protected void onConnectionCreated(MySQLServerConnection conn, Scheduler scheduler) {
+        // 连接创建成功后先握手
         scheduler.handle(() -> conn.handshake());
-        return conn;
-    }
-
-    @Override
-    public synchronized void removeConnection(AsyncConnection conn) {
-        connections.remove(conn);
     }
 }
