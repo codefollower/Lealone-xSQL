@@ -28,6 +28,7 @@
     <modules>
         <module>lealone-mysql</module>
         <module>lealone-postgresql</module>
+        <module>lealone-xsql-perf</module>
     </modules>
 
     <build>
