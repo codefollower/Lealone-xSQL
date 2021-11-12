@@ -46,7 +46,7 @@ public class PgServer extends AsyncServer<PgServerConnection> {
     }
 
     @Override
-    protected void onConnectionCreated(PgServerConnection conn, Scheduler scheduler) {
+    protected void beforeRegister(PgServerConnection conn, Scheduler scheduler) {
         conn.setProcessId(getConnectionSize());
     }
 
@@ -56,7 +56,7 @@ public class PgServer extends AsyncServer<PgServerConnection> {
     }
 
     void traceError(Throwable e) {
-        logger.info(e);
+        logger.error("", e);
     }
 
     boolean getTrace() {

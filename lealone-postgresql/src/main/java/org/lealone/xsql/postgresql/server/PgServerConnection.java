@@ -665,6 +665,8 @@ public class PgServerConnection extends AsyncConnection {
      */
     @Override
     public void close() {
+        if (conn == null)
+            return;
         try {
             stop = true;
             JdbcUtils.closeSilently(conn);
