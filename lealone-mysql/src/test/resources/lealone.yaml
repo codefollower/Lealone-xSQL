@@ -60,7 +60,6 @@ protocol_server_engines:
   - name: MySQL
     enabled: true
     parameters: {
-        __runInMainThread__: true,
         # port: 9310,
         trace: false,
         allow_others: true,

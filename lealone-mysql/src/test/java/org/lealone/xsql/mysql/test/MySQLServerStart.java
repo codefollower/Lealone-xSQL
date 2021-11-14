@@ -24,5 +24,4 @@ public class MySQLServerStart {
     public static void main(String[] args) {
         Lealone.main(args);
     }
-
 }

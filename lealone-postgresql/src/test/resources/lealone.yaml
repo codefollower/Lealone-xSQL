@@ -60,7 +60,6 @@ protocol_server_engines:
   - name: PostgreSQL
     enabled: true
     parameters: {
-        __runInMainThread__: true,
         port: 9510,
         trace: false,
         allow_others: true,
