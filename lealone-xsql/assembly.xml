@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright Lealone Database Group.
+ * Licensed under the Server Side Public License, v 1.
+ * Initial Developer: zhh
+-->
+<assembly>
+    <formats>
+        <format>dir</format>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+
+    <baseDirectory>/</baseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>lealone-xsql/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>lealone-xsql/conf</directory>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <files>
+        <file>
+            <source>lealone-xsql/target/lealone-${project.version}.jar</source>
+            <outputDirectory>lib</outputDirectory>
+        </file><!--
+        <file>
+            <source>lealone-client/target/lealone-client-${project.version}-all.jar</source>
+            <outputDirectory>lib/client</outputDirectory>
+        </file>-->
+    </files>
+
+    <moduleSets>
+        <moduleSet>
+            <includes>
+                <include>org.lealone:lealone-mysql</include>
+                <include>org.lealone:lealone-postgresql</include>
+            </includes><!--
+            <binaries>
+                <unpack>false</unpack>
+                <outputDirectory>lib</outputDirectory>
+                <dependencySets>
+                    <dependencySet>
+                        <useTransitiveFiltering>true</useTransitiveFiltering>
+                        <useTransitiveDependencies>true</useTransitiveDependencies>
+                    </dependencySet>
+                </dependencySets>
+            </binaries>-->
+        </moduleSet>
+    </moduleSets>
+</assembly>

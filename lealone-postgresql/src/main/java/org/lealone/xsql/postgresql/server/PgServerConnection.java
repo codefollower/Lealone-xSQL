@@ -116,6 +116,7 @@ public class PgServerConnection extends AsyncConnection {
         info.put("MODE", "PostgreSQL");
         info.put("USER", userName);
         info.put("PASSWORD", password);
+        info.put("DEFAULT_SQL_ENGINE", PgServerEngine.NAME);
         String url = Constants.URL_PREFIX + Constants.URL_EMBED + databaseName;
         ConnectionInfo ci = new ConnectionInfo(url, info);
         // if (server.getIfExists()) {
@@ -694,7 +695,7 @@ public class PgServerConnection extends AsyncConnection {
         sendParameterStatus("integer_datetimes", "off");
         sendParameterStatus("is_superuser", "off");
         sendParameterStatus("server_encoding", "SQL_ASCII");
-        sendParameterStatus("server_version", "8.2.23");
+        sendParameterStatus("server_version", PgServer.PG_VERSION);
         sendParameterStatus("session_authorization", userName);
         sendParameterStatus("standard_conforming_strings", "off");
         // TODO PostgreSQL TimeZone

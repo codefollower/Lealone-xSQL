@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright Lealone Database Group.
+ * Licensed under the Server Side Public License, v 1.
+ * Initial Developer: zhh
+-->
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-5level %date{HH:mm:ss.SSS} %msg%n" />
+        </Console>
+        <RollingFile name="RollingFile" fileName="${sys:lealone.logdir}/lealone.log"
+            filePattern="${sys:lealone.logdir}/lealone.log.%i.zip">
+            <PatternLayout pattern="%-5level [%thread] [%date{ISO8601}] [%F] %msg%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20MB" />
+            </Policies>
+            <DefaultRolloverStrategy min="1" max="20" />
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="RollingFile" />
+        </Root>
+    </Loggers>
+</Configuration>
