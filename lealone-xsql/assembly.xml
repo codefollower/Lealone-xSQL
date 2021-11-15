@@ -27,29 +27,6 @@
         <file>
             <source>lealone-xsql/target/lealone-${project.version}.jar</source>
             <outputDirectory>lib</outputDirectory>
-        </file><!--
-        <file>
-            <source>lealone-client/target/lealone-client-${project.version}-all.jar</source>
-            <outputDirectory>lib/client</outputDirectory>
-        </file>-->
+        </file>
     </files>
-
-    <moduleSets>
-        <moduleSet>
-            <includes>
-                <include>org.lealone:lealone-mysql</include>
-                <include>org.lealone:lealone-postgresql</include>
-            </includes><!--
-            <binaries>
-                <unpack>false</unpack>
-                <outputDirectory>lib</outputDirectory>
-                <dependencySets>
-                    <dependencySet>
-                        <useTransitiveFiltering>true</useTransitiveFiltering>
-                        <useTransitiveDependencies>true</useTransitiveDependencies>
-                    </dependencySet>
-                </dependencySets>
-            </binaries>-->
-        </moduleSet>
-    </moduleSets>
 </assembly>
