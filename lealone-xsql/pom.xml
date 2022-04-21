@@ -29,33 +29,7 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.lealone</groupId>
-                <artifactId>lealone-main</artifactId>
-                <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.lealone</groupId>
-                        <artifactId>lealone-web</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.lealone</groupId>
-                        <artifactId>lealone-orm</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-core</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+
     <build>
         <plugins>
             <plugin>
