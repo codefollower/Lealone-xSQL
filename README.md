@@ -7,43 +7,43 @@ MySQL 协议版本支持 5.x 到 8.x 系列
 PostgreSQL JDBC Driver 支持 9.x 和 42.x 两个系列版本
 
 
-## 需要
+## 编译需要
 
-* JDK 1.8+
-* Maven 3.3+
+* JDK 17+ (运行只需要 JDK 1.8+)
+* Maven 3.8+
 
 
 ## 打包
 
 执行以下命令打包:
 
-`mvn package assembly:assembly -Dmaven.test.skip=true`
+`mvn package -Dmaven.test.skip=true`
 
-生成的文件放在 `target\lealone-5.0.0-SNAPSHOT` 目录
+生成的文件放在 `lealone-xsql\target` 目录
 
 
 ## 运行 Lealone 数据库
 
-进入 `target\lealone-5.0.0-SNAPSHOT\bin` 目录，运行: `lealone`
+进入 `lealone-xsql\target` 目录，运行: `java -jar lealone-5.0.0-SNAPSHOT.jar`
 
 ```java
-E:\lealone\lealone-xsql\target\lealone-5.0.0-SNAPSHOT\bin>lealone
-INFO  22:09:46.605 Lealone version: 5.0.0-SNAPSHOT
-INFO  22:09:46.610 Loading config from file:/E:/lealone/lealone-xsql/target/lealone-5.0.0-SNAPSHOT/conf/lealone.yaml
-INFO  22:09:46.655 Base dir: ../data
-INFO  22:09:46.659 Init storage engines: 3 ms
-INFO  22:09:46.689 Init transaction engines: 29 ms
-INFO  22:09:46.691 Init sql engines: 1 ms
-INFO  22:09:46.825 Init protocol server engines: 133 ms
-INFO  22:09:46.825 Init lealone database: 0 ms
-INFO  22:09:46.825 Starting nio net server
-INFO  22:09:46.827 TcpServer started, host: 127.0.0.1, port: 9210
-INFO  22:09:46.827 Starting nio net server
-INFO  22:09:46.828 MySQLServer started, host: 127.0.0.1, port: 9310
-INFO  22:09:46.828 Starting nio net server
-INFO  22:09:46.829 PgServer started, host: 127.0.0.1, port: 9510
-INFO  22:09:46.829 Total time: 222 ms (Load config: 48 ms, Init: 170 ms, Start: 4 ms)
-INFO  22:09:46.830 Exit with Ctrl+C
+E:\lealone\lealone-xsql\lealone-xsql\target>java -jar lealone-5.0.0-SNAPSHOT.jar
+Lealone version: 5.0.0-SNAPSHOT
+Loading config from jar:file:/E:/lealone/lealone-xsql/lealone-xsql/target/lealone-5.0.0-SNAPSHOT.jar!/lealone.yaml
+Base dir: .\lealone_data
+Init storage engines: 3 ms
+Init transaction engines: 57 ms
+Init sql engines: 3 ms
+Init protocol server engines: 175 ms
+Init lealone database: 0 ms
+Starting tcp server accepter
+TcpServer started, host: 127.0.0.1, port: 9210
+Starting tcp server accepter
+MySQLServer started, host: 127.0.0.1, port: 9310
+Starting tcp server accepter
+PgServer started, host: 127.0.0.1, port: 9510
+Total time: 330 ms (Load config: 78 ms, Init: 245 ms, Start: 7 ms)
+Exit with Ctrl+C
 ```
 
 ## 用 MySQL 客户端访问 Lealone 数据库
