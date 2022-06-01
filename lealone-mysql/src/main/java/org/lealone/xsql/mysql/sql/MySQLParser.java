@@ -949,7 +949,11 @@ public class MySQLParser implements SQLParser {
         } else if (readIf("VARIABLES")) {
             // for MySQL compatibility
             buff.append("NAME AS VARIABLE_NAME, VALUE AS VARIABLE_VALUE FROM INFORMATION_SCHEMA.SETTINGS");
-            if (readIf("WHERE")) {
+
+            if (readIf("LIKE")) {
+                buff.append(" WHERE VARIABLE_NAME LIKE ");
+                buff.append(readExpression().getSQL());
+            } else if (readIf("WHERE")) {
                 buff.append(" WHERE ");
                 buff.append(readExpression().getSQL());
             }

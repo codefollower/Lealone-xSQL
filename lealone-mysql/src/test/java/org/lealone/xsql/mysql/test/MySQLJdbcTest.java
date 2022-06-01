@@ -39,8 +39,8 @@ public class MySQLJdbcTest {
 
         String db = "mysql";
         String password = "";
-        db = "test";
-        password = "zhh";
+        // db = "test";
+        // password = "zhh";
 
         String url = "jdbc:mysql://localhost:" + port + "/" + db;
 
