@@ -21,15 +21,15 @@ import java.util.Map;
 /**
  * @author xianmao.hexm 2010-8-3 下午06:12:53
  */
-public class CharsetUtil {
+public final class CharsetUtil {
 
     private static final String[] INDEX_TO_CHARSET = new String[99];
     private static final String[] INDEX_TO_DB_CHARSET = new String[99];
-    private static final Map<String, Integer> CHARSET_TO_INDEX = new HashMap<String, Integer>();
-    private static final Map<String, Integer> DB_CHARSET_TO_INDEX = new HashMap<String, Integer>();
+    private static final Map<String, Integer> CHARSET_TO_INDEX = new HashMap<>();
+    private static final Map<String, Integer> DB_CHARSET_TO_INDEX = new HashMap<>();
 
-    public static final String UTF8_MB4 = "utf8mb4";
-    public static final String UTF8 = "utf8";
+    // public static final String UTF8_MB4 = "utf8mb4";
+    // public static final String UTF8 = "utf8";
 
     static {
         // index --> charset
@@ -240,14 +240,14 @@ public class CharsetUtil {
         DB_CHARSET_TO_INDEX.put("utf-8", 33);
     }
 
-    public static final String getCharset(int index) {
+    public static String getCharset(int index) {
         if (index < 0 || index > 98) {
             index = 83;
         }
         return INDEX_TO_CHARSET[index];
     }
 
-    public static final int getIndex(String charset) {
+    public static int getIndex(String charset) {
         if (charset == null || charset.length() == 0) {
             return 0;
         } else {
@@ -256,14 +256,14 @@ public class CharsetUtil {
         }
     }
 
-    public static final String getDbCharset(int index) {
+    public static String getDbCharset(int index) {
         if (index < 0 || index > 98) {
             index = 83;
         }
         return INDEX_TO_DB_CHARSET[index];
     }
 
-    public static final int getDBIndex(String charset) {
+    public static int getDBIndex(String charset) {
         if (charset == null || charset.length() == 0) {
             return 0;
         } else {

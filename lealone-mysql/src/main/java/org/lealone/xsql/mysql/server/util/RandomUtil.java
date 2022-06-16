@@ -18,13 +18,72 @@ package org.lealone.xsql.mysql.server.util;
 /**
  * @author xianmao.hexm 2010-1-21 上午10:39:54
  */
-public class RandomUtil {
-    
-    private static final byte[] bytes = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'q', 'w', 'e', 'r', 't',
-            'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
-            'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X',
-            'C', 'V', 'B', 'N', 'M' };
-     
+public final class RandomUtil {
+
+    private static final byte[] bytes = {
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+            '0',
+            'q',
+            'w',
+            'e',
+            'r',
+            't',
+            'y',
+            'u',
+            'i',
+            'o',
+            'p',
+            'a',
+            's',
+            'd',
+            'f',
+            'g',
+            'h',
+            'j',
+            'k',
+            'l',
+            'z',
+            'x',
+            'c',
+            'v',
+            'b',
+            'n',
+            'm',
+            'Q',
+            'W',
+            'E',
+            'R',
+            'T',
+            'Y',
+            'U',
+            'I',
+            'O',
+            'P',
+            'A',
+            'S',
+            'D',
+            'F',
+            'G',
+            'H',
+            'J',
+            'K',
+            'L',
+            'Z',
+            'X',
+            'C',
+            'V',
+            'B',
+            'N',
+            'M' };
+
     private static final long multiplier = 0x5DEECE66DL;
     private static final long addend = 0xBL;
     private static final long mask = (1L << 48) - 1;
@@ -38,7 +97,7 @@ public class RandomUtil {
         seed = s;
     }
 
-    public static final byte[] randomBytes(int size) {
+    public static byte[] randomBytes(int size) {
         byte[] bb = bytes;
         byte[] ab = new byte[size];
         for (int i = 0; i < size; i++) {

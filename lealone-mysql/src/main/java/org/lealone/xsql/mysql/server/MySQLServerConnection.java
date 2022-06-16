@@ -59,7 +59,6 @@ public class MySQLServerConnection extends AsyncConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(MySQLServerConnection.class);
     private static final byte[] AUTH_OK = new byte[] { 7, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 };
-    public static final int BUFFER_SIZE = 16 * 1024;
 
     private final MySQLServer server;
     private final Scheduler scheduler;
@@ -81,8 +80,8 @@ public class MySQLServerConnection extends AsyncConnection {
 
     // 客户端连上来后，数据库先发回一个握手包
     void handshake(int threadId) {
-        PacketOutput output = getPacketOutput();
-        HandshakePacket.create(threadId).write(output);
+        PacketOutput out = getPacketOutput();
+        HandshakePacket.create(threadId).write(out);
         // 接着创建一个AuthPacketHandler用来鉴别是否是合法的用户
         packetHandler = new AuthPacketHandler(this);
     }
@@ -277,15 +276,11 @@ public class MySQLServerConnection extends AsyncConnection {
         return new PacketOutput(writableChannel, scheduler.getDataBufferFactory());
     }
 
-    private NetBufferOutputStream createNetBufferOutputStream() {
-        return new NetBufferOutputStream(writableChannel, BUFFER_SIZE, scheduler.getDataBufferFactory());
-    }
-
     private void sendMessage(byte[] data) {
-        NetBufferOutputStream out = createNetBufferOutputStream();
-        try {
+        try (NetBufferOutputStream out = new NetBufferOutputStream(writableChannel, data.length,
+                scheduler.getDataBufferFactory())) {
             out.write(data);
-            out.flush();
+            out.flush(false);
         } catch (IOException e) {
             logger.error("Failed to send message", e);
         }

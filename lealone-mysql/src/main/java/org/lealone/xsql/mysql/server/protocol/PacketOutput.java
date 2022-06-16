@@ -22,9 +22,10 @@ import java.nio.ByteBuffer;
 import org.lealone.db.DataBuffer;
 import org.lealone.db.DataBufferFactory;
 import org.lealone.net.WritableChannel;
-import org.lealone.xsql.mysql.server.MySQLServerConnection;
 
 public class PacketOutput {
+
+    private static final int BUFFER_SIZE = 8 * 1024;
 
     private final WritableChannel writableChannel;
     private final DataBufferFactory dataBufferFactory;
@@ -36,7 +37,7 @@ public class PacketOutput {
     }
 
     public ByteBuffer allocate(int capacity) {
-        capacity = Math.min(capacity, MySQLServerConnection.BUFFER_SIZE);
+        capacity = Math.min(capacity, BUFFER_SIZE);
         dataBuffer = dataBufferFactory.create(capacity);
         return dataBuffer.getBuffer();
     }
@@ -52,7 +53,7 @@ public class PacketOutput {
             } else {
                 buffer.put(src, offset, remaining);
                 flush();
-                buffer = allocate(MySQLServerConnection.BUFFER_SIZE);
+                buffer = allocate(BUFFER_SIZE);
                 offset += remaining;
                 length -= remaining;
                 remaining = buffer.remaining();

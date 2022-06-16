@@ -44,7 +44,7 @@ public class AuthPacket extends RequestPacket {
     public long clientFlags;
     public long maxPacketSize;
     public int charsetIndex;
-    public byte[] extra;// from FILLER(23)
+    public byte[] extra; // from FILLER(23)
     public String user;
     public byte[] password;
     public String database;
