@@ -27,7 +27,7 @@ import org.lealone.xsql.mysql.server.MySQLServerConnection;
 
 public class PacketOutput {
 
-    private static final Logger logger = LoggerFactory.getLogger(MySQLServerConnection.class);
+    private static final Logger logger = LoggerFactory.getLogger(PacketOutput.class);
 
     private final DataOutputStream out;
 

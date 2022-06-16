@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import org.lealone.xsql.mysql.server.protocol.ErrorCode;
 import org.lealone.xsql.mysql.server.protocol.ErrorPacket;
 import org.lealone.xsql.mysql.server.protocol.FieldPacket;
+import org.lealone.xsql.mysql.server.protocol.PacketInput;
 import org.lealone.xsql.mysql.server.protocol.ResultSetHeaderPacket;
 
 /**
@@ -71,12 +72,12 @@ public class PacketUtil {
         error.message = "The server has been shutdown".getBytes();
         return error;
     }
-    //
-    // public static final FieldPacket getField(BinaryPacket src, String fieldName) {
-    // FieldPacket field = new FieldPacket();
-    // field.read(src);
-    // field.name = encode(fieldName, CODE_PAGE_1252);
-    // field.packetLength = field.calcPacketSize();
-    // return field;
-    // }
+
+    public static final FieldPacket getField(PacketInput in, String fieldName) {
+        FieldPacket field = new FieldPacket();
+        field.read(in);
+        field.name = encode(fieldName, CODE_PAGE_1252);
+        field.packetLength = field.calcPacketSize();
+        return field;
+    }
 }

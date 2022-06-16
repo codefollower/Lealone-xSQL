@@ -43,7 +43,7 @@ public class PgServer extends AsyncServer<PgServerConnection> {
 
     @Override
     protected PgServerConnection createConnection(WritableChannel writableChannel, Scheduler scheduler) {
-        return new PgServerConnection(this, writableChannel);
+        return new PgServerConnection(this, writableChannel, scheduler);
     }
 
     @Override

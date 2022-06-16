@@ -22,15 +22,13 @@ import org.lealone.common.exceptions.DbException;
 public abstract class RequestPacket extends Packet {
 
     @Override
-    public abstract void read(PacketInput in);
-
-    @Override
-    public void write(PacketOutput out) {
-        throw DbException.throwInternalError("write");
+    public int calcPacketSize() {
+        throw DbException.throwInternalError("calcPacketSize");
     }
 
     @Override
-    public int calcPacketSize() {
-        throw DbException.throwInternalError("calcPacketSize");
+    public void read(PacketInput in) {
+        packetLength = in.readUB3();
+        packetId = in.read();
     }
 }

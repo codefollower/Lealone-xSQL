@@ -45,6 +45,16 @@ public class EOFPacket extends ResponsePacket {
     public int status = 2;
 
     @Override
+    public String getPacketInfo() {
+        return "MySQL EOF Packet";
+    }
+
+    @Override
+    public int calcPacketSize() {
+        return 5;// 1+2+2;
+    }
+
+    @Override
     public ByteBuffer write(ByteBuffer buffer, PacketOutput out) {
         int size = calcPacketSize();
         buffer = out.checkWriteBuffer(buffer, out.getPacketHeaderSize() + size);
@@ -54,15 +64,5 @@ public class EOFPacket extends ResponsePacket {
         BufferUtil.writeUB2(buffer, warningCount);
         BufferUtil.writeUB2(buffer, status);
         return buffer;
-    }
-
-    @Override
-    public int calcPacketSize() {
-        return 5;// 1+2+2;
-    }
-
-    @Override
-    protected String getPacketInfo() {
-        return "MySQL EOF Packet";
     }
 }

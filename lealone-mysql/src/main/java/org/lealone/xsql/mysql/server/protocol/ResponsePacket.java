@@ -19,19 +19,19 @@ package org.lealone.xsql.mysql.server.protocol;
 
 import java.nio.ByteBuffer;
 
-import org.lealone.common.exceptions.DbException;
-
 public abstract class ResponsePacket extends Packet {
-
-    @Override
-    public void read(PacketInput in) {
-        DbException.throwInternalError("read");
-    }
 
     @Override
     public void write(PacketOutput out) {
         ByteBuffer buffer = out.allocate();
         buffer = write(buffer, out);
         out.write(buffer);
+    }
+
+    /**
+     * 把数据包写到buffer中，如果buffer满了就把buffer通过前端连接写出。
+     */
+    public ByteBuffer write(ByteBuffer buffer, PacketOutput c) {
+        throw new UnsupportedOperationException();
     }
 }

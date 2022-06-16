@@ -17,15 +17,12 @@
  */
 package org.lealone.xsql.mysql.server.handler;
 
-import java.io.UnsupportedEncodingException;
-
-import org.lealone.common.exceptions.DbException;
 import org.lealone.xsql.mysql.server.MySQLServerConnection;
 import org.lealone.xsql.mysql.server.protocol.ErrorCode;
+import org.lealone.xsql.mysql.server.protocol.ExecutePacket;
 import org.lealone.xsql.mysql.server.protocol.InitDbPacket;
-import org.lealone.xsql.mysql.server.protocol.MySQLMessage;
-import org.lealone.xsql.mysql.server.protocol.MySQLPacket;
 import org.lealone.xsql.mysql.server.protocol.PacketInput;
+import org.lealone.xsql.mysql.server.protocol.PacketType;
 
 public class CommandPacketHandler implements PacketHandler {
 
@@ -35,52 +32,50 @@ public class CommandPacketHandler implements PacketHandler {
         this.conn = conn;
     }
 
+    private String readSql(PacketInput in) {
+        in.position(5);
+        // 使用指定的编码来读取数据
+        return in.readString("utf-8");
+    }
+
     @Override
     public void handle(PacketInput in) {
-        MySQLMessage mm = new MySQLMessage(in);
-        switch (mm.type()) {
-        case MySQLPacket.COM_QUERY:
-            mm.position(5);
-            String sql = null;
-            try {
-                // 使用指定的编码来读取数据
-                sql = mm.readString("utf-8");
-            } catch (UnsupportedEncodingException e) {
-                throw DbException.convert(e);
-            }
+        switch (in.type()) {
+        case PacketType.COM_QUERY: {
+            String sql = readSql(in);
             conn.executeStatement(sql);
             break;
-        case MySQLPacket.COM_INIT_DB:
+        }
+        case PacketType.COM_STMT_PREPARE: {
+            String sql = readSql(in);
+            conn.prepareStatement(sql);
+            break;
+        }
+        case PacketType.COM_STMT_EXECUTE: {
+            ExecutePacket packet = new ExecutePacket();
+            packet.read(in, "utf-8", conn.getSession());
+            conn.executeStatement(packet);
+            break;
+        }
+        case PacketType.COM_STMT_CLOSE:
+            in.position(5);
+            conn.closeStatement(in.readInt());
+            break;
+        case PacketType.COM_INIT_DB:
             InitDbPacket packet = new InitDbPacket();
             packet.read(in);
             conn.initDatabase(packet.database);
             conn.writeOkPacket();
             break;
-        case MySQLPacket.COM_QUIT:
+        case PacketType.COM_QUIT:
             conn.close();
             break;
-        case MySQLPacket.COM_PROCESS_KILL: // 直接返回OkPacket
-        case MySQLPacket.COM_PING:
+        case PacketType.COM_PROCESS_KILL: // 直接返回OkPacket
+        case PacketType.COM_PING:
             conn.writeOkPacket();
             break;
         default:
             conn.sendErrorMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Unknown command");
         }
-        // case MySQLPacket.COM_STMT_PREPARE:
-        // commands.doStmtPrepare();
-        // source.stmtPrepare(data);
-        // break;
-        // case MySQLPacket.COM_STMT_EXECUTE:
-        // commands.doStmtExecute();
-        // source.stmtExecute(data);
-        // break;
-        // case MySQLPacket.COM_STMT_CLOSE:
-        // commands.doStmtClose();
-        // source.stmtClose(data);
-        // break;
-        // case MySQLPacket.COM_HEARTBEAT:
-        // commands.doHeartbeat();
-        // source.heartbeat(data);
-        // break;
     }
 }

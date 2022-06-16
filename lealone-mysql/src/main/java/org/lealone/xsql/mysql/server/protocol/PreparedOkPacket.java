@@ -47,33 +47,23 @@ import org.lealone.xsql.mysql.server.util.BufferUtil;
  * 
  * @author xianmao.hexm 2012-8-28
  */
-public class PreparedOkPacket extends MySQLPacket {
+public class PreparedOkPacket extends ResponsePacket {
 
-    public byte flag;
-    public long statementId;
+    public byte status;
+    public int statementId;
     public int columnsNumber;
     public int parametersNumber;
     public byte filler;
     public int warningCount;
 
     public PreparedOkPacket() {
-        this.flag = 0;
+        this.status = 0;
         this.filler = 0;
     }
 
     @Override
-    public ByteBuffer write(ByteBuffer buffer, PacketOutput out) {
-        int size = calcPacketSize();
-        buffer = out.checkWriteBuffer(buffer, out.getPacketHeaderSize() + size);
-        BufferUtil.writeUB3(buffer, size);
-        buffer.put(packetId);
-        buffer.put(flag);
-        BufferUtil.writeUB4(buffer, statementId);
-        BufferUtil.writeUB2(buffer, columnsNumber);
-        BufferUtil.writeUB2(buffer, parametersNumber);
-        buffer.put(filler);
-        BufferUtil.writeUB2(buffer, warningCount);
-        return buffer;
+    public String getPacketInfo() {
+        return "MySQL PreparedOk Packet";
     }
 
     @Override
@@ -82,7 +72,17 @@ public class PreparedOkPacket extends MySQLPacket {
     }
 
     @Override
-    protected String getPacketInfo() {
-        return "MySQL PreparedOk Packet";
+    public ByteBuffer write(ByteBuffer buffer, PacketOutput out) {
+        int size = calcPacketSize();
+        buffer = out.checkWriteBuffer(buffer, out.getPacketHeaderSize() + size);
+        BufferUtil.writeUB3(buffer, size);
+        buffer.put(packetId);
+        buffer.put(status);
+        BufferUtil.writeUB4(buffer, statementId);
+        BufferUtil.writeUB2(buffer, columnsNumber);
+        BufferUtil.writeUB2(buffer, parametersNumber);
+        buffer.put(filler);
+        BufferUtil.writeUB2(buffer, warningCount);
+        return buffer;
     }
 }

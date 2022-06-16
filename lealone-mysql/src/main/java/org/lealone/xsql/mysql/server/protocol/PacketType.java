@@ -15,12 +15,12 @@
  */
 package org.lealone.xsql.mysql.server.protocol;
 
-import java.nio.ByteBuffer;
-
 /**
  * @author xianmao.hexm
+ * @author zhh
  */
-public abstract class MySQLPacket {
+public interface PacketType {
+
     /**
      * none, this is an internal thread state
      */
@@ -170,30 +170,4 @@ public abstract class MySQLPacket {
      * cobar heartbeat
      */
     public static final byte COM_HEARTBEAT = 64;
-
-    public int packetLength;
-    public byte packetId;
-
-    /**
-     * 把数据包写到buffer中，如果buffer满了就把buffer通过前端连接写出。
-     */
-    public ByteBuffer write(ByteBuffer buffer, PacketOutput c) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * 计算数据包大小，不包含包头长度。
-     */
-    public abstract int calcPacketSize();
-
-    /**
-     * 取得数据包信息
-     */
-    protected abstract String getPacketInfo();
-
-    @Override
-    public String toString() {
-        return new StringBuilder().append(getPacketInfo()).append("{length=").append(packetLength).append(",id=")
-                .append(packetId).append('}').toString();
-    }
 }

@@ -50,19 +50,8 @@ public class OkPacket extends ResponsePacket {
     public byte[] message;
 
     @Override
-    public void write(PacketOutput out) {
-        ByteBuffer buffer = out.allocate();
-        BufferUtil.writeUB3(buffer, calcPacketSize());
-        buffer.put(packetId);
-        buffer.put(fieldCount);
-        BufferUtil.writeLength(buffer, affectedRows);
-        BufferUtil.writeLength(buffer, insertId);
-        BufferUtil.writeUB2(buffer, serverStatus);
-        BufferUtil.writeUB2(buffer, warningCount);
-        if (message != null) {
-            BufferUtil.writeWithLength(buffer, message);
-        }
-        out.write(buffer);
+    public String getPacketInfo() {
+        return "MySQL OK Packet";
     }
 
     @Override
@@ -78,7 +67,18 @@ public class OkPacket extends ResponsePacket {
     }
 
     @Override
-    protected String getPacketInfo() {
-        return "MySQL OK Packet";
+    public void write(PacketOutput out) {
+        ByteBuffer buffer = out.allocate();
+        BufferUtil.writeUB3(buffer, calcPacketSize());
+        buffer.put(packetId);
+        buffer.put(fieldCount);
+        BufferUtil.writeLength(buffer, affectedRows);
+        BufferUtil.writeLength(buffer, insertId);
+        BufferUtil.writeUB2(buffer, serverStatus);
+        BufferUtil.writeUB2(buffer, warningCount);
+        if (message != null) {
+            BufferUtil.writeWithLength(buffer, message);
+        }
+        out.write(buffer);
     }
 }

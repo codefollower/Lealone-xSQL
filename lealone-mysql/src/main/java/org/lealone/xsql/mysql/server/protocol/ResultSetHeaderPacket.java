@@ -48,16 +48,8 @@ public class ResultSetHeaderPacket extends ResponsePacket {
     public long extra;
 
     @Override
-    public ByteBuffer write(ByteBuffer buffer, PacketOutput c) {
-        int size = calcPacketSize();
-        buffer = c.checkWriteBuffer(buffer, c.getPacketHeaderSize() + size);
-        BufferUtil.writeUB3(buffer, size);
-        buffer.put(packetId);
-        BufferUtil.writeLength(buffer, fieldCount);
-        if (extra > 0) {
-            BufferUtil.writeLength(buffer, extra);
-        }
-        return buffer;
+    public String getPacketInfo() {
+        return "MySQL ResultSetHeader Packet";
     }
 
     @Override
@@ -70,7 +62,15 @@ public class ResultSetHeaderPacket extends ResponsePacket {
     }
 
     @Override
-    protected String getPacketInfo() {
-        return "MySQL ResultSetHeader Packet";
+    public ByteBuffer write(ByteBuffer buffer, PacketOutput c) {
+        int size = calcPacketSize();
+        buffer = c.checkWriteBuffer(buffer, c.getPacketHeaderSize() + size);
+        BufferUtil.writeUB3(buffer, size);
+        buffer.put(packetId);
+        BufferUtil.writeLength(buffer, fieldCount);
+        if (extra > 0) {
+            BufferUtil.writeLength(buffer, extra);
+        }
+        return buffer;
     }
 }

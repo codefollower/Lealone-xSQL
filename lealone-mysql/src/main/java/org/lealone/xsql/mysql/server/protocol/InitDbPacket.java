@@ -22,16 +22,14 @@ public class InitDbPacket extends RequestPacket {
     public String database;
 
     @Override
-    public void read(PacketInput in) {
-        MySQLMessage mm = new MySQLMessage(in);
-        packetLength = mm.readUB3();
-        packetId = mm.read();
-        mm.position(5);
-        database = mm.readStringWithNull();
+    public String getPacketInfo() {
+        return "MySQL Init Database Packet";
     }
 
     @Override
-    protected String getPacketInfo() {
-        return "MySQL Init Database Packet";
+    public void read(PacketInput in) {
+        super.read(in);
+        in.position(5);
+        database = in.readStringWithNull();
     }
 }

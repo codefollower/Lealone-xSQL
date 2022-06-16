@@ -41,6 +41,7 @@ import org.lealone.db.Constants;
 import org.lealone.net.AsyncConnection;
 import org.lealone.net.NetBuffer;
 import org.lealone.net.WritableChannel;
+import org.lealone.server.Scheduler;
 import org.lealone.sql.SQLStatement;
 import org.lealone.xsql.postgresql.io.NetBufferInput;
 import org.lealone.xsql.postgresql.io.NetBufferOutput;
@@ -63,6 +64,7 @@ public class PgServerConnection extends AsyncConnection {
     private static final int BUFFER_SIZE = 4 * 1024;
 
     private final PgServer server;
+    private final Scheduler scheduler;
     private Connection conn;
     private boolean stop;
     private NetBufferInput in;
@@ -78,9 +80,10 @@ public class PgServerConnection extends AsyncConnection {
     private final ArrayList<NetBufferOutput> outList = new ArrayList<>();
     private boolean isQuery;
 
-    protected PgServerConnection(PgServer server, WritableChannel writableChannel) {
+    protected PgServerConnection(PgServer server, WritableChannel writableChannel, Scheduler scheduler) {
         super(writableChannel, true);
         this.server = server;
+        this.scheduler = scheduler;
     }
 
     private String readString() throws IOException {
@@ -768,7 +771,7 @@ public class PgServerConnection extends AsyncConnection {
         out.setInt(1, out.length() - 1); // 回填
         if (isQuery) {
             outList.add(out);
-            out = new NetBufferOutput(writableChannel, BUFFER_SIZE);
+            out = new NetBufferOutput(writableChannel, BUFFER_SIZE, scheduler.getDataBufferFactory());
         } else {
             if (!outList.isEmpty()) {
                 for (NetBufferOutput o : outList)
@@ -869,7 +872,7 @@ public class PgServerConnection extends AsyncConnection {
         }
         if (stop)
             return;
-        out = new NetBufferOutput(writableChannel, BUFFER_SIZE);
+        out = new NetBufferOutput(writableChannel, BUFFER_SIZE, scheduler.getDataBufferFactory());
         in = new NetBufferInput(buffer);
         try {
             int x;

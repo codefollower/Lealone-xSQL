@@ -17,6 +17,7 @@ if /i "%ARG%" == "-pc" goto pc
 if /i "%ARG%" == "-i" goto i
 if /i "%ARG%" == "-c" goto c
 if /i "%ARG%" == "-dt" goto dt
+if /i "%ARG%" == "-vu" goto vu
 
 goto usage
 
@@ -31,6 +32,7 @@ echo    -pc           mvn clean package -Dmaven.test.skip=true
 echo    -i            mvn install -Dmaven.test.skip=true
 echo    -c            mvn clean
 echo    -dt           mvn dependency:tree
+echo    -vu version   pom.xml version update
 goto end
 
 :e
@@ -63,6 +65,13 @@ goto end
 
 :dt
 call mvn dependency:tree
+goto end
+
+:vu
+set VERSION=%2
+if /i "%VERSION%" == "" goto usage
+call mvn versions:set -DnewVersion=%VERSION%
+call mvn versions:commit
 goto end
 
 :end

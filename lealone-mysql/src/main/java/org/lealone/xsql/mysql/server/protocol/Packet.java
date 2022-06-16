@@ -1,14 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * Copyright 1999-2012 Alibaba Group.
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,25 +15,41 @@
  */
 package org.lealone.xsql.mysql.server.protocol;
 
-public abstract class Packet extends MySQLPacket {
+import org.lealone.common.exceptions.DbException;
+
+/**
+ * @author xianmao.hexm
+ * @author zhh
+ */
+public abstract class Packet {
 
     public static final byte PACKET_HEADER_SIZE = 4;
 
     public int packetLength;
     public byte packetId;
 
-    @Override
-    public int calcPacketSize() {
-        return 0;
+    /**
+     * 取得数据包信息
+     */
+    public abstract String getPacketInfo();
+
+    /**
+     * 计算数据包大小，不包含包头长度。
+     */
+    public abstract int calcPacketSize();
+
+    public void read(PacketInput in) {
+        throw DbException.throwInternalError("read");
+    }
+
+    public void write(PacketOutput out) {
+        throw DbException.throwInternalError("write");
     }
 
     @Override
-    protected String getPacketInfo() {
-        return null;
+    public String toString() {
+        return new StringBuilder().append(getPacketInfo()) //
+                .append("{length=").append(packetLength) //
+                .append(",id=").append(packetId).append('}').toString();
     }
-
-    public abstract void read(PacketInput in);
-
-    public abstract void write(PacketOutput out);
-
 }

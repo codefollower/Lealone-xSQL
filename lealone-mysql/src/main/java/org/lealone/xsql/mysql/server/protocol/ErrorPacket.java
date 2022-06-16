@@ -38,7 +38,7 @@ import org.lealone.xsql.mysql.server.util.BufferUtil;
  */
 public class ErrorPacket extends ResponsePacket {
 
-    public static final byte FIELD_COUNT = (byte) 0xff;
+    private static final byte FIELD_COUNT = (byte) 0xff;
     private static final byte SQLSTATE_MARKER = (byte) '#';
     private static final byte[] DEFAULT_SQLSTATE = "HY000".getBytes();
 
@@ -47,6 +47,20 @@ public class ErrorPacket extends ResponsePacket {
     public byte mark = SQLSTATE_MARKER;
     public byte[] sqlState = DEFAULT_SQLSTATE;
     public byte[] message;
+
+    @Override
+    public String getPacketInfo() {
+        return "MySQL Error Packet";
+    }
+
+    @Override
+    public int calcPacketSize() {
+        int size = 9;// 1 + 2 + 1 + 5
+        if (message != null) {
+            size += message.length;
+        }
+        return size;
+    }
 
     @Override
     public void write(PacketOutput out) {
@@ -61,19 +75,5 @@ public class ErrorPacket extends ResponsePacket {
             buffer = out.writeToBuffer(message, buffer);
         }
         out.write(buffer);
-    }
-
-    @Override
-    public int calcPacketSize() {
-        int size = 9;// 1 + 2 + 1 + 5
-        if (message != null) {
-            size += message.length;
-        }
-        return size;
-    }
-
-    @Override
-    protected String getPacketInfo() {
-        return "MySQL Error Packet";
     }
 }

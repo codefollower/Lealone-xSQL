@@ -4,6 +4,13 @@
 
 base_dir: ./target/data
 
+scheduler:
+    parameters: {
+        scheduler_count: 2,
+        max_packet_count_per_loop: 10,
+        prefer_batch_write: false,
+    }
+
 sql_engines:
   - name: MySQL
     enabled: true
@@ -16,6 +23,7 @@ protocol_server_engines:
   - name: MySQL
     enabled: true
     parameters: {
+        # host: localhost,
         # port: 9310,
         trace: false,
         allow_others: true,

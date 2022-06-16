@@ -66,13 +66,8 @@ public class FieldPacket extends ResponsePacket {
     public byte[] definition;
 
     @Override
-    public ByteBuffer write(ByteBuffer buffer, PacketOutput out) {
-        int size = calcPacketSize();
-        buffer = out.checkWriteBuffer(buffer, out.getPacketHeaderSize() + size);
-        BufferUtil.writeUB3(buffer, size);
-        buffer.put(packetId);
-        writeBody(buffer);
-        return buffer;
+    public String getPacketInfo() {
+        return "MySQL Field Packet";
     }
 
     @Override
@@ -91,8 +86,13 @@ public class FieldPacket extends ResponsePacket {
     }
 
     @Override
-    protected String getPacketInfo() {
-        return "MySQL Field Packet";
+    public ByteBuffer write(ByteBuffer buffer, PacketOutput out) {
+        int size = calcPacketSize();
+        buffer = out.checkWriteBuffer(buffer, out.getPacketHeaderSize() + size);
+        BufferUtil.writeUB3(buffer, size);
+        buffer.put(packetId);
+        writeBody(buffer);
+        return buffer;
     }
 
     private void writeBody(ByteBuffer buffer) {

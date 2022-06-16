@@ -17,7 +17,6 @@
  */
 package org.lealone.xsql.mysql.server;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -30,14 +29,14 @@ import org.lealone.common.logging.LoggerFactory;
 import org.lealone.db.ConnectionInfo;
 import org.lealone.db.Constants;
 import org.lealone.db.result.Result;
-import org.lealone.db.session.Session;
+import org.lealone.db.session.ServerSession;
 import org.lealone.db.value.Value;
 import org.lealone.db.value.ValueNull;
 import org.lealone.net.AsyncConnection;
 import org.lealone.net.NetBuffer;
-import org.lealone.net.NetBufferInputStream;
 import org.lealone.net.NetBufferOutputStream;
 import org.lealone.net.WritableChannel;
+import org.lealone.server.Scheduler;
 import org.lealone.sql.PreparedSQLStatement;
 import org.lealone.xsql.mysql.server.handler.AuthPacketHandler;
 import org.lealone.xsql.mysql.server.handler.CommandPacketHandler;
@@ -45,12 +44,14 @@ import org.lealone.xsql.mysql.server.handler.PacketHandler;
 import org.lealone.xsql.mysql.server.protocol.AuthPacket;
 import org.lealone.xsql.mysql.server.protocol.EOFPacket;
 import org.lealone.xsql.mysql.server.protocol.ErrorPacket;
+import org.lealone.xsql.mysql.server.protocol.ExecutePacket;
 import org.lealone.xsql.mysql.server.protocol.FieldPacket;
 import org.lealone.xsql.mysql.server.protocol.Fields;
 import org.lealone.xsql.mysql.server.protocol.HandshakePacket;
 import org.lealone.xsql.mysql.server.protocol.OkPacket;
 import org.lealone.xsql.mysql.server.protocol.PacketInput;
 import org.lealone.xsql.mysql.server.protocol.PacketOutput;
+import org.lealone.xsql.mysql.server.protocol.PreparedOkPacket;
 import org.lealone.xsql.mysql.server.protocol.ResultSetHeaderPacket;
 import org.lealone.xsql.mysql.server.protocol.RowDataPacket;
 import org.lealone.xsql.mysql.server.util.PacketUtil;
@@ -62,13 +63,21 @@ public class MySQLServerConnection extends AsyncConnection {
     public static final int BUFFER_SIZE = 16 * 1024;
 
     private final MySQLServer server;
-    private Session session;
+    private final Scheduler scheduler;
+    private ServerSession session;
+
     private PacketHandler packetHandler;
     private AuthPacket authPacket;
+    private int nextStatementId;
 
-    protected MySQLServerConnection(MySQLServer server, WritableChannel writableChannel) {
-        super(writableChannel, true);
+    protected MySQLServerConnection(MySQLServer server, WritableChannel channel, Scheduler scheduler) {
+        super(channel, true);
         this.server = server;
+        this.scheduler = scheduler;
+    }
+
+    public ServerSession getSession() {
+        return session;
     }
 
     // 客户端连上来后，数据库先发回一个握手包
@@ -95,14 +104,14 @@ public class MySQLServerConnection extends AsyncConnection {
         sendMessage(AUTH_OK);
     }
 
-    private static Session createSession(AuthPacket authPacket, String dbName) {
+    private static ServerSession createSession(AuthPacket authPacket, String dbName) {
         Properties info = new Properties();
         info.put("MODE", "MySQL");
         info.put("USER", authPacket.user);
         info.put("PASSWORD", getPassword(authPacket));
         String url = Constants.URL_PREFIX + Constants.URL_EMBED + dbName;
         ConnectionInfo ci = new ConnectionInfo(url, info);
-        return ci.createSession();
+        return (ServerSession) ci.createSession();
     }
 
     private static String getPassword(AuthPacket authPacket) {
@@ -116,11 +125,43 @@ public class MySQLServerConnection extends AsyncConnection {
         session = createSession(authPacket, dbName);
     }
 
-    public void executeStatement(String sql) {
-        logger.info("sql: " + sql);
-        try {
-            PreparedSQLStatement ps = (PreparedSQLStatement) session.prepareSQLCommand(sql, -1);
+    public void closeStatement(int statementId) {
+        PreparedSQLStatement command = (PreparedSQLStatement) session.removeCache(statementId, true);
+        if (command != null) {
+            command.close();
+        }
+    }
 
+    public void prepareStatement(String sql) {
+        PreparedSQLStatement command = session.prepareStatement(sql, -1);
+        int statementId = ++nextStatementId;
+        command.setId(statementId);
+        session.addCache(statementId, command);
+
+        PacketOutput out = getPacketOutput();
+        PreparedOkPacket packet = new PreparedOkPacket();
+        packet.packetId = 1;
+        packet.statementId = statementId;
+        packet.columnsNumber = command.getMetaData().getVisibleColumnCount();
+        packet.parametersNumber = command.getParameters().size();
+        packet.write(out);
+    }
+
+    public void executeStatement(ExecutePacket packet) {
+        PreparedSQLStatement ps = (PreparedSQLStatement) session.getCache((int) packet.statementId);
+        String sql = ps.getSQL();
+        executeStatement(ps, sql);
+    }
+
+    public void executeStatement(String sql) {
+        executeStatement(null, sql);
+    }
+
+    private void executeStatement(PreparedSQLStatement ps, String sql) {
+        logger.info("execute sql: " + sql);
+        try {
+            if (ps == null)
+                ps = (PreparedSQLStatement) session.prepareSQLCommand(sql, -1);
             if (ps.isQuery()) {
                 Result result = ps.executeQuery(-1).get();
                 writeQueryResult(result);
@@ -245,7 +286,7 @@ public class MySQLServerConnection extends AsyncConnection {
     }
 
     private NetBufferOutputStream createNetBufferOutputStream() {
-        return new NetBufferOutputStream(writableChannel, BUFFER_SIZE);
+        return new NetBufferOutputStream(writableChannel, BUFFER_SIZE, scheduler.getDataBufferFactory());
     }
 
     private void sendMessage(byte[] data) {
@@ -283,13 +324,12 @@ public class MySQLServerConnection extends AsyncConnection {
             byte[] packet = new byte[length + 4];
             packetLengthByteBuffer.get(packet, 0, 4);
             packetLengthByteBuffer.clear();
-            DataInputStream in = new DataInputStream(new NetBufferInputStream(buffer));
-            in.read(packet, 4, length);
-            in.close();
+            buffer.read(packet, 4, length);
+            buffer.recycle();
             PacketInput input = new PacketInput(packet);
             packetHandler.handle(input);
         } catch (Throwable e) {
-            logger.error("Handle packet", e);
+            logger.error("Failed to handle packet", e);
             sendErrorMessage(e);
         }
     }

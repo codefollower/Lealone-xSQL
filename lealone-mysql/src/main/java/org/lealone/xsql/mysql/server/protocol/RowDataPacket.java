@@ -60,6 +60,21 @@ public class RowDataPacket extends ResponsePacket {
     }
 
     @Override
+    public String getPacketInfo() {
+        return "MySQL RowData Packet";
+    }
+
+    @Override
+    public int calcPacketSize() {
+        int size = 0;
+        for (int i = 0; i < fieldCount; i++) {
+            byte[] v = fieldValues.get(i);
+            size += (v == null || v.length == 0) ? 1 : BufferUtil.getLength(v);
+        }
+        return size;
+    }
+
+    @Override
     public ByteBuffer write(ByteBuffer bb, PacketOutput c) {
         bb = c.checkWriteBuffer(bb, c.getPacketHeaderSize());
         BufferUtil.writeUB3(bb, calcPacketSize());
@@ -76,20 +91,5 @@ public class RowDataPacket extends ResponsePacket {
             }
         }
         return bb;
-    }
-
-    @Override
-    public int calcPacketSize() {
-        int size = 0;
-        for (int i = 0; i < fieldCount; i++) {
-            byte[] v = fieldValues.get(i);
-            size += (v == null || v.length == 0) ? 1 : BufferUtil.getLength(v);
-        }
-        return size;
-    }
-
-    @Override
-    protected String getPacketInfo() {
-        return "MySQL RowData Packet";
     }
 }

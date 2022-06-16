@@ -51,14 +51,13 @@ public class MySQLServer extends AsyncServer<MySQLServerConnection> {
 
     @Override
     protected MySQLServerConnection createConnection(WritableChannel writableChannel, Scheduler scheduler) {
-        return new MySQLServerConnection(this, writableChannel);
+        return new MySQLServerConnection(this, writableChannel, scheduler);
     }
 
     @Override
     protected void afterRegister(MySQLServerConnection conn, Scheduler scheduler) {
-        String name = scheduler.getName();
-        int threadId = Integer.parseInt(name.substring(name.indexOf('-') + 1));
+        int threadId = scheduler.getHandlerId();
         // 连接创建成功后先握手
-        scheduler.handle(() -> conn.handshake(threadId));
+        conn.handshake(threadId);
     }
 }

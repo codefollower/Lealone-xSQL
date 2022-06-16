@@ -63,24 +63,8 @@ public class HandshakePacket extends ResponsePacket {
     public byte[] restOfScrambleBuff;
 
     @Override
-    public void write(PacketOutput out) {
-        ByteBuffer buffer = out.allocate();
-        BufferUtil.writeUB3(buffer, calcPacketSize());
-        buffer.put(packetId);
-        buffer.put(protocolVersion);
-        BufferUtil.writeWithNull(buffer, serverVersion);
-        BufferUtil.writeUB4(buffer, threadId);
-        BufferUtil.writeWithNull(buffer, seed);
-        BufferUtil.writeUB2(buffer, serverCapabilities);
-        buffer.put(serverCharsetIndex);
-        BufferUtil.writeUB2(buffer, serverStatus);
-        BufferUtil.writeUB2(buffer, Capabilities.CLIENT_PLUGIN_AUTH >> 16);
-        buffer.put((byte) (20 + 1));
-        buffer.put(FILLER_10);
-        BufferUtil.writeWithNull(buffer, authPluginDataPart2);
-        BufferUtil.writeWithNull(buffer, mysql_native_password);
-        BufferUtil.writeWithNull(buffer, restOfScrambleBuff);
-        out.write(buffer);
+    public String getPacketInfo() {
+        return "MySQL Handshake Packet";
     }
 
     @Override
@@ -99,8 +83,24 @@ public class HandshakePacket extends ResponsePacket {
     }
 
     @Override
-    protected String getPacketInfo() {
-        return "MySQL Handshake Packet";
+    public void write(PacketOutput out) {
+        ByteBuffer buffer = out.allocate();
+        BufferUtil.writeUB3(buffer, calcPacketSize());
+        buffer.put(packetId);
+        buffer.put(protocolVersion);
+        BufferUtil.writeWithNull(buffer, serverVersion);
+        BufferUtil.writeUB4(buffer, threadId);
+        BufferUtil.writeWithNull(buffer, seed);
+        BufferUtil.writeUB2(buffer, serverCapabilities);
+        buffer.put(serverCharsetIndex);
+        BufferUtil.writeUB2(buffer, serverStatus);
+        BufferUtil.writeUB2(buffer, Capabilities.CLIENT_PLUGIN_AUTH >> 16);
+        buffer.put((byte) (20 + 1));
+        buffer.put(FILLER_10);
+        BufferUtil.writeWithNull(buffer, authPluginDataPart2);
+        BufferUtil.writeWithNull(buffer, mysql_native_password);
+        BufferUtil.writeWithNull(buffer, restOfScrambleBuff);
+        out.write(buffer);
     }
 
     public static HandshakePacket create(int threadId) {

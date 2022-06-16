@@ -18,20 +18,9 @@ package org.lealone.xsql.mysql.server.protocol;
 /**
  * @author xianmao.hexm
  */
+// mysql error code
 public interface ErrorCode {
 
-    // cobar error code
-    int ERR_OPEN_SOCKET = 3001;
-    int ERR_CONNECT_SOCKET = 3002;
-    int ERR_FINISH_CONNECT = 3003;
-    int ERR_REGISTER = 3004;
-    int ERR_READ = 3005;
-    int ERR_PUT_WRITE_QUEUE = 3006;
-    int ERR_WRITE_BY_EVENT = 3007;
-    int ERR_WRITE_BY_QUEUE = 3008;
-    int ERR_HANDLE_DATA = 3009;
-
-    // mysql error code
     int ER_HASHCHK = 1000;
     int ER_NISAMCHK = 1001;
     int ER_NO = 1002;

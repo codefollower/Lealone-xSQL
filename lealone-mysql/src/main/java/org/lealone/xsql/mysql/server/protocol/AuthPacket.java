@@ -49,31 +49,29 @@ public class AuthPacket extends RequestPacket {
     public String database;
 
     @Override
-    public void read(PacketInput in) {
-        MySQLMessage mm = new MySQLMessage(in);
-        packetLength = mm.readUB3();
-        packetId = mm.read();
-        clientFlags = mm.readUB4();
-        maxPacketSize = mm.readUB4();
-        charsetIndex = (mm.read() & 0xff);
-        // read extra
-        int current = mm.position();
-        int len = (int) mm.readLength();
-        if (len > 0 && len < FILLER.length) {
-            byte[] ab = new byte[len];
-            System.arraycopy(mm.bytes(), mm.position(), ab, 0, len);
-            this.extra = ab;
-        }
-        mm.position(current + FILLER.length);
-        user = mm.readStringWithNull();
-        password = mm.readBytesWithLength();
-        if (((clientFlags & Capabilities.CLIENT_CONNECT_WITH_DB) != 0) && mm.hasRemaining()) {
-            database = mm.readStringWithNull();
-        }
+    public String getPacketInfo() {
+        return "MySQL Authentication Packet";
     }
 
     @Override
-    protected String getPacketInfo() {
-        return "MySQL Authentication Packet";
+    public void read(PacketInput in) {
+        super.read(in);
+        clientFlags = in.readUB4();
+        maxPacketSize = in.readUB4();
+        charsetIndex = (in.read() & 0xff);
+        // read extra
+        int current = in.position();
+        int len = (int) in.readLength();
+        if (len > 0 && len < FILLER.length) {
+            byte[] ab = new byte[len];
+            System.arraycopy(in.bytes(), in.position(), ab, 0, len);
+            this.extra = ab;
+        }
+        in.position(current + FILLER.length);
+        user = in.readStringWithNull();
+        password = in.readBytesWithLength();
+        if (((clientFlags & Capabilities.CLIENT_CONNECT_WITH_DB) != 0) && in.hasRemaining()) {
+            database = in.readStringWithNull();
+        }
     }
 }

@@ -5,6 +5,7 @@
  */
 package org.lealone.xsql.postgresql.io;
 
+import org.lealone.db.DataBufferFactory;
 import org.lealone.net.NetBuffer;
 import org.lealone.net.WritableChannel;
 
@@ -12,11 +13,13 @@ public class NetBufferOutput implements AutoCloseable {
 
     protected final WritableChannel writableChannel;
     protected final int initialSizeHint;
+    protected final DataBufferFactory dataBufferFactory;
     protected NetBuffer buffer;
 
-    public NetBufferOutput(WritableChannel writableChannel, int initialSizeHint) {
+    public NetBufferOutput(WritableChannel writableChannel, int initialSizeHint, DataBufferFactory dataBufferFactory) {
         this.writableChannel = writableChannel;
         this.initialSizeHint = initialSizeHint;
+        this.dataBufferFactory = dataBufferFactory;
         reset();
     }
 
@@ -71,7 +74,7 @@ public class NetBufferOutput implements AutoCloseable {
     }
 
     protected void reset() {
-        buffer = writableChannel.getBufferFactory().createBuffer(initialSizeHint);
+        buffer = writableChannel.getBufferFactory().createBuffer(initialSizeHint, dataBufferFactory);
     }
 
     @Override
