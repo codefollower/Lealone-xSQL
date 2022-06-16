@@ -52,7 +52,7 @@ public class HandshakePacket extends ResponsePacket {
     private static final byte[] FILLER_10 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     private static final byte[] mysql_native_password = "mysql_native_password".getBytes();
 
-    private final byte[] authPluginDataPart2 = RandomUtil.randomBytes(12);
+    public final byte[] authPluginDataPart2 = RandomUtil.randomBytes(12);
 
     public byte protocolVersion;
     public byte[] serverVersion;
@@ -105,12 +105,6 @@ public class HandshakePacket extends ResponsePacket {
         byte[] rand1 = RandomUtil.randomBytes(8);
         byte[] rand2 = RandomUtil.randomBytes(12);
 
-        // 保存认证数据
-        // byte[] seed = new byte[rand1.length + rand2.length];
-        // System.arraycopy(rand1, 0, seed, 0, rand1.length);
-        // System.arraycopy(rand2, 0, seed, rand1.length, rand2.length);
-        // seed0 = seed;
-
         // 发送握手数据包
         HandshakePacket hs = new HandshakePacket();
         hs.packetId = 0;
@@ -124,8 +118,6 @@ public class HandshakePacket extends ResponsePacket {
         hs.restOfScrambleBuff = rand2;
         return hs;
     }
-
-    // private static byte[] seed0;
 
     /** 协议版本 */
     private static byte PROTOCOL_VERSION = 10;

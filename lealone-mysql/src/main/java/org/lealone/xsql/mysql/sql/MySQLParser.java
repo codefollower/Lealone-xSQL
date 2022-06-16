@@ -92,7 +92,6 @@ import org.lealone.sql.ddl.CreateSequence;
 import org.lealone.sql.ddl.CreateService;
 import org.lealone.sql.ddl.CreateTable;
 import org.lealone.sql.ddl.CreateTrigger;
-import org.lealone.sql.ddl.CreateUser;
 import org.lealone.sql.ddl.CreateUserDataType;
 import org.lealone.sql.ddl.CreateView;
 import org.lealone.sql.ddl.DeallocateProcedure;
@@ -167,6 +166,8 @@ import org.lealone.sql.optimizer.TableFilter.TableFilterVisitor;
 import org.lealone.sql.query.Query;
 import org.lealone.sql.query.Select;
 import org.lealone.sql.query.SelectUnion;
+import org.lealone.xsql.mysql.sql.dml.MySQLAlterUser;
+import org.lealone.xsql.mysql.sql.dml.MySQLCreateUser;
 import org.lealone.xsql.mysql.sql.expression.MySQLVariable;
 
 /**
@@ -4536,8 +4537,8 @@ public class MySQLParser implements SQLParser {
         return command;
     }
 
-    private CreateUser parseCreateUser() {
-        CreateUser command = new CreateUser(session);
+    private MySQLCreateUser parseCreateUser() {
+        MySQLCreateUser command = new MySQLCreateUser(session);
         command.setIfNotExists(readIfNotExists());
         command.setUserName(readUniqueIdentifier());
         command.setComment(readCommentIf());
@@ -4802,10 +4803,10 @@ public class MySQLParser implements SQLParser {
         return command;
     }
 
-    private AlterUser parseAlterUser() {
+    private MySQLAlterUser parseAlterUser() {
         String userName = readUniqueIdentifier();
         if (readIf("SET")) {
-            AlterUser command = new AlterUser(session);
+            MySQLAlterUser command = new MySQLAlterUser(session);
             command.setType(SQLStatement.ALTER_USER_SET_PASSWORD);
             command.setUser(database.getUser(session, userName));
             if (readIf("PASSWORD")) {
@@ -4820,14 +4821,14 @@ public class MySQLParser implements SQLParser {
             return command;
         } else if (readIf("RENAME")) {
             read("TO");
-            AlterUser command = new AlterUser(session);
+            MySQLAlterUser command = new MySQLAlterUser(session);
             command.setType(SQLStatement.ALTER_USER_RENAME);
             command.setUser(database.getUser(session, userName));
             String newName = readUniqueIdentifier();
             command.setNewName(newName);
             return command;
         } else if (readIf("ADMIN")) {
-            AlterUser command = new AlterUser(session);
+            MySQLAlterUser command = new MySQLAlterUser(session);
             command.setType(SQLStatement.ALTER_USER_ADMIN);
             User user = database.getUser(session, userName);
             command.setUser(user);

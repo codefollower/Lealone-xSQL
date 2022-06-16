@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.lealone.common.exceptions.DbException;
 import org.lealone.common.logging.Logger;
 import org.lealone.common.logging.LoggerFactory;
+import org.lealone.common.util.StringUtils;
 import org.lealone.db.ConnectionInfo;
 import org.lealone.db.Constants;
 import org.lealone.db.result.Result;
@@ -59,6 +60,7 @@ public class MySQLServerConnection extends AsyncConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(MySQLServerConnection.class);
     private static final byte[] AUTH_OK = new byte[] { 7, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 };
+    private static final byte[] EMPTY = new byte[0];
 
     private final MySQLServer server;
     private final Scheduler scheduler;
@@ -67,6 +69,8 @@ public class MySQLServerConnection extends AsyncConnection {
     private PacketHandler packetHandler;
     private AuthPacket authPacket;
     private int nextStatementId;
+
+    private byte[] seed;
 
     protected MySQLServerConnection(MySQLServer server, WritableChannel channel, Scheduler scheduler) {
         super(channel, true);
@@ -78,12 +82,22 @@ public class MySQLServerConnection extends AsyncConnection {
         return session;
     }
 
+    public byte[] getSeed() {
+        return seed;
+    }
+
     // 客户端连上来后，数据库先发回一个握手包
     void handshake(int threadId) {
         PacketOutput out = getPacketOutput();
-        HandshakePacket.create(threadId).write(out);
+        HandshakePacket p = HandshakePacket.create(threadId);
+        p.write(out);
         // 接着创建一个AuthPacketHandler用来鉴别是否是合法的用户
         packetHandler = new AuthPacketHandler(this);
+
+        // 保存认证数据，不能用restOfScrambleBuff
+        seed = new byte[p.seed.length + p.authPluginDataPart2.length];
+        System.arraycopy(p.seed, 0, seed, 0, p.seed.length);
+        System.arraycopy(p.authPluginDataPart2, 0, seed, p.seed.length, p.authPluginDataPart2.length);
     }
 
     public void authenticate(AuthPacket authPacket) {
@@ -102,21 +116,22 @@ public class MySQLServerConnection extends AsyncConnection {
         sendMessage(AUTH_OK);
     }
 
-    private static ServerSession createSession(AuthPacket authPacket, String dbName) {
+    private ServerSession createSession(AuthPacket authPacket, String dbName) {
         Properties info = new Properties();
         info.put("MODE", "MySQL");
         info.put("USER", authPacket.user);
-        info.put("PASSWORD", getPassword(authPacket));
+        info.put("PASSWORD", StringUtils.convertBytesToHex(getPassword(authPacket)));
+        info.put("PASSWORD_HASH", "true");
         String url = Constants.URL_PREFIX + Constants.URL_EMBED + dbName;
         ConnectionInfo ci = new ConnectionInfo(url, info);
+        ci.setSalt(seed);
         return (ServerSession) ci.createSession();
     }
 
-    private static String getPassword(AuthPacket authPacket) {
+    private static byte[] getPassword(AuthPacket authPacket) {
         if (authPacket.password == null || authPacket.password.length == 0)
-            return "";
-        // TODO MySQL的密码跟Lealone不一样
-        return "";
+            return EMPTY;
+        return authPacket.password;
     }
 
     public void initDatabase(String dbName) {

@@ -18,6 +18,8 @@ package org.lealone.xsql.mysql.server.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.lealone.common.exceptions.DbException;
+
 /**
  * 加密解密工具类
  * 
@@ -25,8 +27,33 @@ import java.security.NoSuchAlgorithmException;
  */
 public final class SecurityUtil {
 
-    public static byte[] scramble411(byte[] pass, byte[] seed) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("SHA-1");
+    private static MessageDigest getMessageDigest() {
+        try {
+            return MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw DbException.convert(e);
+        }
+    }
+
+    public static byte[] sha1(String pass) {
+        MessageDigest md = getMessageDigest();
+        return md.digest(pass.getBytes());
+    }
+
+    public static byte[] scramble411Sha1Pass(byte[] sha1Pass, byte[] seed) {
+        MessageDigest md = getMessageDigest();
+        byte[] pass2 = md.digest(sha1Pass);
+        md.reset();
+        md.update(seed);
+        byte[] pass3 = md.digest(pass2);
+        for (int i = 0; i < pass3.length; i++) {
+            pass3[i] = (byte) (sha1Pass[i] ^ pass3[i]);
+        }
+        return pass3;
+    }
+
+    public static byte[] scramble411(byte[] pass, byte[] seed) {
+        MessageDigest md = getMessageDigest();
         byte[] pass1 = md.digest(pass);
         md.reset();
         byte[] pass2 = md.digest(pass1);
@@ -34,7 +61,7 @@ public final class SecurityUtil {
         md.update(seed);
         byte[] pass3 = md.digest(pass2);
         for (int i = 0; i < pass3.length; i++) {
-            pass3[i] = (byte) (pass3[i] ^ pass1[i]);
+            pass3[i] = (byte) (pass1[i] ^ pass3[i]);
         }
         return pass3;
     }
