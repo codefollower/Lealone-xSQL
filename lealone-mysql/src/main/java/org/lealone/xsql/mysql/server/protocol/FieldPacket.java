@@ -46,6 +46,7 @@ import org.lealone.xsql.mysql.server.util.BufferUtil;
  * </pre>
  * 
  * @author xianmao.hexm 2010-7-22 下午05:43:34
+ * @author zhh
  */
 public class FieldPacket extends ResponsePacket {
 
@@ -78,7 +79,7 @@ public class FieldPacket extends ResponsePacket {
         size += (orgTable == null ? 1 : BufferUtil.getLength(orgTable));
         size += (name == null ? 1 : BufferUtil.getLength(name));
         size += (orgName == null ? 1 : BufferUtil.getLength(orgName));
-        size += 13;// 1+2+4+1+2+1+2
+        size += 13; // 1+2+4+1+2+1+2
         if (definition != null) {
             size += BufferUtil.getLength(definition);
         }
@@ -86,16 +87,7 @@ public class FieldPacket extends ResponsePacket {
     }
 
     @Override
-    public ByteBuffer write(ByteBuffer buffer, PacketOutput out) {
-        int size = calcPacketSize();
-        buffer = out.checkWriteBuffer(buffer, out.getPacketHeaderSize() + size);
-        BufferUtil.writeUB3(buffer, size);
-        buffer.put(packetId);
-        writeBody(buffer);
-        return buffer;
-    }
-
-    private void writeBody(ByteBuffer buffer) {
+    public void writeBody(ByteBuffer buffer, PacketOutput out) {
         byte nullVal = 0;
         BufferUtil.writeWithLength(buffer, catalog, nullVal);
         BufferUtil.writeWithLength(buffer, db, nullVal);

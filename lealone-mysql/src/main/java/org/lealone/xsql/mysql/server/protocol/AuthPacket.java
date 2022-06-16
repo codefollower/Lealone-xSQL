@@ -35,6 +35,7 @@ import org.lealone.xsql.mysql.server.util.Capabilities;
  * </pre>
  * 
  * @author xianmao.hexm 2010-7-15 下午04:35:34
+ * @author zhh
  */
 public class AuthPacket extends RequestPacket {
 

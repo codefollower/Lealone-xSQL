@@ -36,13 +36,11 @@ import org.lealone.xsql.mysql.server.util.BufferUtil;
  * </pre>
  * 
  * @author xianmao.hexm 2010-7-16 上午10:33:50
+ * @author zhh
  */
 public class OkPacket extends ResponsePacket {
 
-    public static final byte FIELD_COUNT = 0x00;
-    public static final byte[] OK = new byte[] { 7, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0 };
-
-    public byte fieldCount = FIELD_COUNT;
+    public byte fieldCount = 0x00;
     public long affectedRows;
     public long insertId;
     public int serverStatus;
@@ -67,10 +65,7 @@ public class OkPacket extends ResponsePacket {
     }
 
     @Override
-    public void write(PacketOutput out) {
-        ByteBuffer buffer = out.allocate();
-        BufferUtil.writeUB3(buffer, calcPacketSize());
-        buffer.put(packetId);
+    public void writeBody(ByteBuffer buffer, PacketOutput out) {
         buffer.put(fieldCount);
         BufferUtil.writeLength(buffer, affectedRows);
         BufferUtil.writeLength(buffer, insertId);
@@ -79,6 +74,5 @@ public class OkPacket extends ResponsePacket {
         if (message != null) {
             BufferUtil.writeWithLength(buffer, message);
         }
-        out.write(buffer);
     }
 }

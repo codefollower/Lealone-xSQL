@@ -17,7 +17,6 @@
  */
 package org.lealone.xsql.mysql.server;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -176,14 +175,12 @@ public class MySQLServerConnection extends AsyncConnection {
     }
 
     private void writeQueryResult(Result result) {
-        PacketOutput out = getPacketOutput();
         int fieldCount = result.getVisibleColumnCount();
         ResultSetHeaderPacket header = PacketUtil.getHeader(fieldCount);
         FieldPacket[] fields = new FieldPacket[fieldCount];
         EOFPacket eof = new EOFPacket();
         byte packetId = 0;
         header.packetId = ++packetId;
-        // packetId++;
         for (int i = 0; i < fieldCount; i++) {
             fields[i] = PacketUtil.getField(result.getColumnName(i).toLowerCase(),
                     Fields.toMySQLType(result.getColumnType(i)));
@@ -191,18 +188,18 @@ public class MySQLServerConnection extends AsyncConnection {
         }
         eof.packetId = ++packetId;
 
-        ByteBuffer buffer = out.allocate();
+        PacketOutput out = getPacketOutput();
 
         // write header
-        buffer = header.write(buffer, out);
+        header.write(out);
 
         // write fields
         for (FieldPacket field : fields) {
-            buffer = field.write(buffer, out);
+            field.write(out);
         }
 
         // write eof
-        buffer = eof.write(buffer, out);
+        eof.write(out);
 
         // write rows
         packetId = eof.packetId;
@@ -218,17 +215,14 @@ public class MySQLServerConnection extends AsyncConnection {
                     }
                 }
                 row.packetId = ++packetId;
-                buffer = row.write(buffer, out);
+                row.write(out);
             }
         }
 
         // write last eof
         EOFPacket lastEof = new EOFPacket();
         lastEof.packetId = ++packetId;
-        buffer = lastEof.write(buffer, out);
-
-        // post write
-        out.write(buffer);
+        lastEof.write(out);
     }
 
     private void writeUpdateResult(int updateCount) {
@@ -280,9 +274,7 @@ public class MySQLServerConnection extends AsyncConnection {
     }
 
     private PacketOutput getPacketOutput() {
-        DataOutputStream out = new DataOutputStream(createNetBufferOutputStream());
-        PacketOutput output = new PacketOutput(out);
-        return output;
+        return new PacketOutput(writableChannel, scheduler.getDataBufferFactory());
     }
 
     private NetBufferOutputStream createNetBufferOutputStream() {

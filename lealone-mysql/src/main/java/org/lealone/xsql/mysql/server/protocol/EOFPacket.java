@@ -35,12 +35,11 @@ import org.lealone.xsql.mysql.server.util.BufferUtil;
  * </pre>
  * 
  * @author xianmao.hexm 2010-7-16 上午10:55:53
+ * @author zhh
  */
 public class EOFPacket extends ResponsePacket {
 
-    public static final byte FIELD_COUNT = (byte) 0xfe;
-
-    public byte fieldCount = FIELD_COUNT;
+    public byte fieldCount = (byte) 0xfe;
     public int warningCount;
     public int status = 2;
 
@@ -51,18 +50,13 @@ public class EOFPacket extends ResponsePacket {
 
     @Override
     public int calcPacketSize() {
-        return 5;// 1+2+2;
+        return 5; // 1+2+2;
     }
 
     @Override
-    public ByteBuffer write(ByteBuffer buffer, PacketOutput out) {
-        int size = calcPacketSize();
-        buffer = out.checkWriteBuffer(buffer, out.getPacketHeaderSize() + size);
-        BufferUtil.writeUB3(buffer, size);
-        buffer.put(packetId);
+    public void writeBody(ByteBuffer buffer, PacketOutput out) {
         buffer.put(fieldCount);
         BufferUtil.writeUB2(buffer, warningCount);
         BufferUtil.writeUB2(buffer, status);
-        return buffer;
     }
 }

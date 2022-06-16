@@ -17,15 +17,7 @@
  */
 package org.lealone.xsql.mysql.server.protocol;
 
-import org.lealone.common.exceptions.DbException;
-
 public abstract class RequestPacket extends Packet {
-
-    @Override
-    public int calcPacketSize() {
-        throw DbException.throwInternalError("calcPacketSize");
-    }
-
     @Override
     public void read(PacketInput in) {
         packetLength = in.readUB3();

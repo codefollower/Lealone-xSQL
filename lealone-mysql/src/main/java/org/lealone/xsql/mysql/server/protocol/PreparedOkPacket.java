@@ -46,6 +46,7 @@ import org.lealone.xsql.mysql.server.util.BufferUtil;
  * </pre>
  * 
  * @author xianmao.hexm 2012-8-28
+ * @author zhh
  */
 public class PreparedOkPacket extends ResponsePacket {
 
@@ -72,17 +73,12 @@ public class PreparedOkPacket extends ResponsePacket {
     }
 
     @Override
-    public ByteBuffer write(ByteBuffer buffer, PacketOutput out) {
-        int size = calcPacketSize();
-        buffer = out.checkWriteBuffer(buffer, out.getPacketHeaderSize() + size);
-        BufferUtil.writeUB3(buffer, size);
-        buffer.put(packetId);
+    public void writeBody(ByteBuffer buffer, PacketOutput out) {
         buffer.put(status);
         BufferUtil.writeUB4(buffer, statementId);
         BufferUtil.writeUB2(buffer, columnsNumber);
         BufferUtil.writeUB2(buffer, parametersNumber);
         buffer.put(filler);
         BufferUtil.writeUB2(buffer, warningCount);
-        return buffer;
     }
 }

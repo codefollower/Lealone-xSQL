@@ -23,8 +23,6 @@ import org.lealone.common.exceptions.DbException;
  */
 public abstract class Packet {
 
-    public static final byte PACKET_HEADER_SIZE = 4;
-
     public int packetLength;
     public byte packetId;
 
@@ -32,11 +30,6 @@ public abstract class Packet {
      * 取得数据包信息
      */
     public abstract String getPacketInfo();
-
-    /**
-     * 计算数据包大小，不包含包头长度。
-     */
-    public abstract int calcPacketSize();
 
     public void read(PacketInput in) {
         throw DbException.throwInternalError("read");

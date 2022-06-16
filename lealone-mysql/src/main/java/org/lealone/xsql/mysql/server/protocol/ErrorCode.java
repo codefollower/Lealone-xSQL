@@ -17,6 +17,7 @@ package org.lealone.xsql.mysql.server.protocol;
 
 /**
  * @author xianmao.hexm
+ * @author zhh
  */
 // mysql error code
 public interface ErrorCode {

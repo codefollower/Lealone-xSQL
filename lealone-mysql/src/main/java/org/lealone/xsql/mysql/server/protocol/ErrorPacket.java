@@ -35,6 +35,7 @@ import org.lealone.xsql.mysql.server.util.BufferUtil;
  * </pre>
  * 
  * @author xianmao.hexm 2010-7-16 上午10:45:01
+ * @author zhh
  */
 public class ErrorPacket extends ResponsePacket {
 
@@ -55,7 +56,7 @@ public class ErrorPacket extends ResponsePacket {
 
     @Override
     public int calcPacketSize() {
-        int size = 9;// 1 + 2 + 1 + 5
+        int size = 9; // 1 + 2 + 1 + 5
         if (message != null) {
             size += message.length;
         }
@@ -63,10 +64,7 @@ public class ErrorPacket extends ResponsePacket {
     }
 
     @Override
-    public void write(PacketOutput out) {
-        ByteBuffer buffer = out.allocate();
-        BufferUtil.writeUB3(buffer, calcPacketSize());
-        buffer.put(packetId);
+    public void writeBody(ByteBuffer buffer, PacketOutput out) {
         buffer.put(fieldCount);
         BufferUtil.writeUB2(buffer, errno);
         buffer.put(mark);
@@ -74,6 +72,5 @@ public class ErrorPacket extends ResponsePacket {
         if (message != null) {
             buffer = out.writeToBuffer(message, buffer);
         }
-        out.write(buffer);
     }
 }

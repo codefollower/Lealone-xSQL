@@ -42,6 +42,7 @@ import org.lealone.xsql.mysql.server.util.BufferUtil;
  * </pre>
  * 
  * @author xianmao.hexm 2010-7-23 上午01:05:55
+ * @author zhh
  */
 public class RowDataPacket extends ResponsePacket {
 
@@ -52,7 +53,7 @@ public class RowDataPacket extends ResponsePacket {
 
     public RowDataPacket(int fieldCount) {
         this.fieldCount = fieldCount;
-        this.fieldValues = new ArrayList<byte[]>(fieldCount);
+        this.fieldValues = new ArrayList<>(fieldCount);
     }
 
     public void add(byte[] value) {
@@ -75,21 +76,15 @@ public class RowDataPacket extends ResponsePacket {
     }
 
     @Override
-    public ByteBuffer write(ByteBuffer bb, PacketOutput c) {
-        bb = c.checkWriteBuffer(bb, c.getPacketHeaderSize());
-        BufferUtil.writeUB3(bb, calcPacketSize());
-        bb.put(packetId);
+    public void writeBody(ByteBuffer buffer, PacketOutput out) {
         for (int i = 0; i < fieldCount; i++) {
             byte[] fv = fieldValues.get(i);
             if (fv == null || fv.length == 0) {
-                bb = c.checkWriteBuffer(bb, 1);
-                bb.put(RowDataPacket.NULL_MARK);
+                buffer.put(RowDataPacket.NULL_MARK);
             } else {
-                bb = c.checkWriteBuffer(bb, BufferUtil.getLength(fv.length));
-                BufferUtil.writeLength(bb, fv.length);
-                bb = c.writeToBuffer(fv, bb);
+                BufferUtil.writeLength(buffer, fv.length);
+                buffer = out.writeToBuffer(fv, buffer);
             }
         }
-        return bb;
     }
 }

@@ -19,19 +19,27 @@ package org.lealone.xsql.mysql.server.protocol;
 
 import java.nio.ByteBuffer;
 
+import org.lealone.xsql.mysql.server.util.BufferUtil;
+
 public abstract class ResponsePacket extends Packet {
+
+    /**
+     * 计算数据包大小，不包含包头长度。
+     */
+    public abstract int calcPacketSize();
+
+    public abstract void writeBody(ByteBuffer buffer, PacketOutput out);
 
     @Override
     public void write(PacketOutput out) {
-        ByteBuffer buffer = out.allocate();
-        buffer = write(buffer, out);
-        out.write(buffer);
-    }
+        int size = calcPacketSize();
+        ByteBuffer buffer = out.allocate(4 + size); // PacketHeader占4个字节
 
-    /**
-     * 把数据包写到buffer中，如果buffer满了就把buffer通过前端连接写出。
-     */
-    public ByteBuffer write(ByteBuffer buffer, PacketOutput c) {
-        throw new UnsupportedOperationException();
+        // write header
+        BufferUtil.writeUB3(buffer, size);
+        buffer.put(packetId);
+
+        writeBody(buffer, out);
+        out.flush();
     }
 }

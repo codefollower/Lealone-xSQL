@@ -41,6 +41,7 @@ import org.lealone.xsql.mysql.server.util.BufferUtil;
  * </pre>
  * 
  * @author xianmao.hexm 2010-7-22 下午05:59:55
+ * @author zhh
  */
 public class ResultSetHeaderPacket extends ResponsePacket {
 
@@ -62,15 +63,10 @@ public class ResultSetHeaderPacket extends ResponsePacket {
     }
 
     @Override
-    public ByteBuffer write(ByteBuffer buffer, PacketOutput c) {
-        int size = calcPacketSize();
-        buffer = c.checkWriteBuffer(buffer, c.getPacketHeaderSize() + size);
-        BufferUtil.writeUB3(buffer, size);
-        buffer.put(packetId);
+    public void writeBody(ByteBuffer buffer, PacketOutput out) {
         BufferUtil.writeLength(buffer, fieldCount);
         if (extra > 0) {
             BufferUtil.writeLength(buffer, extra);
         }
-        return buffer;
     }
 }

@@ -50,7 +50,8 @@ import org.lealone.xsql.mysql.server.util.RandomUtil;
 public class HandshakePacket extends ResponsePacket {
 
     private static final byte[] FILLER_10 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    private final static byte[] mysql_native_password = "mysql_native_password".getBytes();
+    private static final byte[] mysql_native_password = "mysql_native_password".getBytes();
+
     private final byte[] authPluginDataPart2 = RandomUtil.randomBytes(12);
 
     public byte protocolVersion;
@@ -70,12 +71,12 @@ public class HandshakePacket extends ResponsePacket {
     @Override
     public int calcPacketSize() {
         int size = 1;
-        size += serverVersion.length;// n
-        size += 5;// 1+4
-        size += seed.length;// 8
-        size += 19;// 1+2+1+2+13
-        size += restOfScrambleBuff.length;// 12
-        size += 1;// 1
+        size += serverVersion.length; // n
+        size += 5; // 1+4
+        size += seed.length; // 8
+        size += 19; // 1+2+1+2+13
+        size += restOfScrambleBuff.length; // 12
+        size += 1; // 1
 
         size += authPluginDataPart2.length + 1;
         size += mysql_native_password.length + 1;
@@ -83,10 +84,7 @@ public class HandshakePacket extends ResponsePacket {
     }
 
     @Override
-    public void write(PacketOutput out) {
-        ByteBuffer buffer = out.allocate();
-        BufferUtil.writeUB3(buffer, calcPacketSize());
-        buffer.put(packetId);
+    public void writeBody(ByteBuffer buffer, PacketOutput out) {
         buffer.put(protocolVersion);
         BufferUtil.writeWithNull(buffer, serverVersion);
         BufferUtil.writeUB4(buffer, threadId);
@@ -100,7 +98,6 @@ public class HandshakePacket extends ResponsePacket {
         BufferUtil.writeWithNull(buffer, authPluginDataPart2);
         BufferUtil.writeWithNull(buffer, mysql_native_password);
         BufferUtil.writeWithNull(buffer, restOfScrambleBuff);
-        out.write(buffer);
     }
 
     public static HandshakePacket create(int threadId) {

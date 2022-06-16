@@ -17,39 +17,28 @@
  */
 package org.lealone.xsql.mysql.server.protocol;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.lealone.common.logging.Logger;
-import org.lealone.common.logging.LoggerFactory;
+import org.lealone.db.DataBuffer;
+import org.lealone.db.DataBufferFactory;
+import org.lealone.net.WritableChannel;
 import org.lealone.xsql.mysql.server.MySQLServerConnection;
 
 public class PacketOutput {
 
-    private static final Logger logger = LoggerFactory.getLogger(PacketOutput.class);
+    private final WritableChannel writableChannel;
+    private final DataBufferFactory dataBufferFactory;
+    private DataBuffer dataBuffer;
 
-    private final DataOutputStream out;
-
-    public PacketOutput(DataOutputStream out) {
-        this.out = out;
+    public PacketOutput(WritableChannel writableChannel, DataBufferFactory dataBufferFactory) {
+        this.writableChannel = writableChannel;
+        this.dataBufferFactory = dataBufferFactory;
     }
 
-    public ByteBuffer checkWriteBuffer(ByteBuffer buffer, int capacity) {
-        if (capacity > buffer.remaining()) {
-            write(buffer);
-            return allocate();
-        } else {
-            return buffer;
-        }
-    }
-
-    public ByteBuffer allocate() {
-        return ByteBuffer.allocate(MySQLServerConnection.BUFFER_SIZE);
-    }
-
-    public int getPacketHeaderSize() {
-        return Packet.PACKET_HEADER_SIZE;
+    public ByteBuffer allocate(int capacity) {
+        capacity = Math.min(capacity, MySQLServerConnection.BUFFER_SIZE);
+        dataBuffer = dataBufferFactory.create(capacity);
+        return dataBuffer.getBuffer();
     }
 
     public ByteBuffer writeToBuffer(byte[] src, ByteBuffer buffer) {
@@ -62,8 +51,8 @@ public class PacketOutput {
                 break;
             } else {
                 buffer.put(src, offset, remaining);
-                write(buffer);
-                buffer = allocate();
+                flush();
+                buffer = allocate(MySQLServerConnection.BUFFER_SIZE);
                 offset += remaining;
                 length -= remaining;
                 remaining = buffer.remaining();
@@ -73,13 +62,11 @@ public class PacketOutput {
         return buffer;
     }
 
-    public void write(ByteBuffer buffer) {
-        buffer.flip();
-        try {
-            out.write(buffer.array(), buffer.arrayOffset(), buffer.limit());
-            out.flush();
-        } catch (IOException e) {
-            logger.error("Failed to write", e);
+    public void flush() {
+        if (dataBuffer != null) {
+            dataBuffer.getAndFlipBuffer();
+            writableChannel.write(writableChannel.getBufferFactory().createBuffer(dataBuffer));
+            dataBuffer = null;
         }
     }
 }
