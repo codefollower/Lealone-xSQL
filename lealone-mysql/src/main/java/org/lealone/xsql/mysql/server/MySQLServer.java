@@ -50,7 +50,8 @@ public class MySQLServer extends AsyncServer<MySQLServerConnection> {
     }
 
     @Override
-    protected MySQLServerConnection createConnection(WritableChannel writableChannel, Scheduler scheduler) {
+    protected MySQLServerConnection createConnection(WritableChannel writableChannel,
+            Scheduler scheduler) {
         return new MySQLServerConnection(this, writableChannel, scheduler);
     }
 

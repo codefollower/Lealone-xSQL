@@ -17,7 +17,6 @@ package org.lealone.xsql.mysql.server.protocol;
 
 import java.nio.ByteBuffer;
 
-import org.lealone.common.util.Utils;
 import org.lealone.db.Constants;
 import org.lealone.xsql.mysql.server.util.BufferUtil;
 import org.lealone.xsql.mysql.server.util.Capabilities;
@@ -124,7 +123,7 @@ public class HandshakePacket extends ResponsePacket {
 
     /** 服务器版本 */
     private static byte[] SERVER_VERSION = ("5.1.48-" + //
-            Constants.PROJECT_NAME + "-" + Utils.getReleaseVersionString()).getBytes();
+            Constants.PROJECT_NAME + "-" + Constants.RELEASE_VERSION).getBytes();
 
     private static int getServerCapabilities() {
         int flag = 0;
