@@ -88,11 +88,11 @@ public class MySQLServerConnection extends AsyncConnection {
 
     // 客户端连上来后，数据库先发回一个握手包
     void handshake(int threadId) {
+        // 创建一个AuthPacketHandler用来鉴别是否是合法的用户
+        packetHandler = new AuthPacketHandler(this);
         PacketOutput out = getPacketOutput();
         HandshakePacket p = HandshakePacket.create(threadId);
-        p.write(out);
-        // 接着创建一个AuthPacketHandler用来鉴别是否是合法的用户
-        packetHandler = new AuthPacketHandler(this);
+        scheduler.handle(() -> p.write(out)); // 交给调度器去写，可能通道还没有注册好
 
         // 保存认证数据，不能用restOfScrambleBuff
         seed = new byte[p.seed.length + p.authPluginDataPart2.length];
