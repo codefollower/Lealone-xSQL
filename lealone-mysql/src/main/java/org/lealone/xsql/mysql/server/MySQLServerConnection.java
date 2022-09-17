@@ -104,6 +104,9 @@ public class MySQLServerConnection extends AsyncConnection {
         this.authPacket = authPacket;
         try {
             session = createSession(authPacket, MySQLServer.DATABASE_NAME);
+            String sql = "CREATE ALIAS IF NOT EXISTS CONNECTION_ID DETERMINISTIC FOR "
+                    + "\"org.lealone.xsql.mysql.sql.expression.MySQLFunction.getConnectionId\"";
+            session.prepareStatement(sql).executeUpdate();
         } catch (Throwable e) {
             logger.error("Failed to create session", e);
             sendErrorMessage(e);

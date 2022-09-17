@@ -953,7 +953,7 @@ public class MySQLParser implements SQLParser {
                     + "IFNULL(COLUMN_DEFAULT, 'NULL') DEFAULT " + "FROM INFORMATION_SCHEMA.COLUMNS C "
                     + "WHERE C.TABLE_NAME=? AND C.TABLE_SCHEMA=? " + "ORDER BY C.ORDINAL_POSITION");
             paramValues.add(ValueString.get(schemaName));
-        } else if (readIf("VARIABLES")) {
+        } else if (readIf("VARIABLES") || readIf("STATUS")) {
             // for MySQL compatibility
             buff.append(
                     "NAME AS VARIABLE_NAME, VALUE AS VARIABLE_VALUE FROM INFORMATION_SCHEMA.SETTINGS");
@@ -4977,16 +4977,20 @@ public class MySQLParser implements SQLParser {
             return command;
         } else if (readIf("NAMES")) {
             readIfEqualOrTo();
-            if (currentTokenType == VALUE) {
-                readString(); // 加单引号
-            } else {
+            if (currentTokenType == IDENTIFIER) {
                 readUniqueIdentifier(); // 不加单引号
-            }
-            readIf("COLLATE");
-            if (currentTokenType == VALUE) {
-                readString(); // 加单引号
             } else {
-                readUniqueIdentifier(); // 不加单引号
+                if (currentTokenType == VALUE) {
+                    readString(); // 加单引号
+                } else {
+                    readUniqueIdentifier(); // 不加单引号
+                }
+                readIf("COLLATE");
+                if (currentTokenType == VALUE) {
+                    readString(); // 加单引号
+                } else {
+                    readUniqueIdentifier(); // 不加单引号
+                }
             }
             return new NoOperation(session);
         } else {

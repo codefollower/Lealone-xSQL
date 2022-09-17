@@ -42,7 +42,7 @@ public class CommandPacketHandler implements PacketHandler {
     public void handle(PacketInput in) {
         switch (in.type()) {
         case PacketType.COM_QUERY: {
-            String sql = readSql(in);
+            String sql = readSql(in).trim();
             conn.executeStatement(sql);
             break;
         }
