@@ -2524,7 +2524,7 @@ public class MySQLParser implements SQLParser {
             readIf("@"); // SET @@XXX 语法
             read();
             String vname = readAliasIdentifier();
-            if (vname.equalsIgnoreCase("session")) {
+            if (vname.equalsIgnoreCase("session") || vname.equalsIgnoreCase("global")) {
                 readIf(".");
                 vname = readAliasIdentifier();
             }
