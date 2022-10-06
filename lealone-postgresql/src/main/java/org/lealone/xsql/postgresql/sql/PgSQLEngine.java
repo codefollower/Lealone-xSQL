@@ -5,9 +5,8 @@
  */
 package org.lealone.xsql.postgresql.sql;
 
-import java.util.Map;
-
 import org.lealone.db.CommandParameter;
+import org.lealone.db.PluginBase;
 import org.lealone.db.schema.Sequence;
 import org.lealone.db.session.Session;
 import org.lealone.db.value.Value;
@@ -20,23 +19,15 @@ import org.lealone.sql.expression.ValueExpression;
 import org.lealone.sql.expression.condition.ConditionAndOr;
 import org.lealone.xsql.postgresql.server.PgServerEngine;
 
-public class PgSQLEngine implements SQLEngine {
+public class PgSQLEngine extends PluginBase implements SQLEngine {
 
     public PgSQLEngine() {
+        super(PgServerEngine.NAME);
     }
 
     @Override
     public SQLParser createParser(Session session) {
         return new PgSQLParser((org.lealone.db.session.ServerSession) session);
-    }
-
-    @Override
-    public String getName() {
-        return PgServerEngine.NAME; // 可以一样
-    }
-
-    @Override
-    public void init(Map<String, String> config) {
     }
 
     @Override
@@ -62,10 +53,7 @@ public class PgSQLEngine implements SQLEngine {
     @Override
     public IExpression createConditionAndOr(boolean and, IExpression left, IExpression right) {
         return new ConditionAndOr(and ? ConditionAndOr.AND : ConditionAndOr.OR,
-                (org.lealone.sql.expression.Expression) left, (org.lealone.sql.expression.Expression) right);
-    }
-
-    @Override
-    public void close() {
+                (org.lealone.sql.expression.Expression) left,
+                (org.lealone.sql.expression.Expression) right);
     }
 }

@@ -539,7 +539,11 @@ public class PgSQLParser implements SQLParser {
     private StatementBase parseBackup() {
         Backup command = new Backup(session);
         read("TO");
-        command.setFileName(readExpression());
+        command.setFileName(readString());
+        if (readIf("LAST")) {
+            read("DATE");
+            command.setLastDate(readString());
+        }
         return command;
     }
 
@@ -621,7 +625,8 @@ public class PgSQLParser implements SQLParser {
 
     private StatementBase parsePrepare() {
         if (readIf("COMMIT")) {
-            TransactionStatement command = new TransactionStatement(session, SQLStatement.PREPARE_COMMIT);
+            TransactionStatement command = new TransactionStatement(session,
+                    SQLStatement.PREPARE_COMMIT);
             command.setTransactionName(readUniqueIdentifier());
             return command;
         }
@@ -938,11 +943,13 @@ public class PgSQLParser implements SQLParser {
             if (readIf("FROM")) {
                 schemaName = readUniqueIdentifier();
             }
-            buff.append("C.COLUMN_NAME FIELD, " + "C.TYPE_NAME || '(' || C.NUMERIC_PRECISION || ')' TYPE, "
+            buff.append("C.COLUMN_NAME FIELD, "
+                    + "C.TYPE_NAME || '(' || C.NUMERIC_PRECISION || ')' TYPE, "
                     + "C.IS_NULLABLE \"NULL\", " + "CASE (SELECT MAX(I.INDEX_TYPE_NAME) FROM "
                     + "INFORMATION_SCHEMA.INDEXES I " + "WHERE I.TABLE_SCHEMA=C.TABLE_SCHEMA "
                     + "AND I.TABLE_NAME=C.TABLE_NAME " + "AND I.COLUMN_NAME=C.COLUMN_NAME)"
-                    + "WHEN 'PRIMARY KEY' THEN 'PRI' " + "WHEN 'UNIQUE INDEX' THEN 'UNI' ELSE '' END KEY, "
+                    + "WHEN 'PRIMARY KEY' THEN 'PRI' "
+                    + "WHEN 'UNIQUE INDEX' THEN 'UNI' ELSE '' END KEY, "
                     + "IFNULL(COLUMN_DEFAULT, 'NULL') DEFAULT " + "FROM INFORMATION_SCHEMA.COLUMNS C "
                     + "WHERE C.TABLE_NAME=? AND C.TABLE_SCHEMA=? " + "ORDER BY C.ORDINAL_POSITION");
             paramValues.add(ValueString.get(schemaName));
@@ -1698,7 +1705,8 @@ public class PgSQLParser implements SQLParser {
             }
             if (foundLeftBracket) {
                 Schema mainSchema = database.getSchema(session, Constants.SCHEMA_MAIN);
-                if (equalsToken(tableName, RangeTable.NAME) || equalsToken(tableName, RangeTable.ALIAS)) {
+                if (equalsToken(tableName, RangeTable.NAME)
+                        || equalsToken(tableName, RangeTable.ALIAS)) {
                     Expression min = readExpression();
                     read(",");
                     Expression max = readExpression();
@@ -1856,11 +1864,12 @@ public class PgSQLParser implements SQLParser {
                         String joinColumnName = c.getName();
                         if (equalsToken(tableColumnName, joinColumnName)) {
                             join.addNaturalJoinColumn(c);
-                            Expression tableExpr = new ExpressionColumn(database, tableSchema, last.getTableAlias(),
-                                    tableColumnName);
-                            Expression joinExpr = new ExpressionColumn(database, joinSchema, join.getTableAlias(),
-                                    joinColumnName);
-                            Expression equal = new Comparison(session, Comparison.EQUAL, tableExpr, joinExpr);
+                            Expression tableExpr = new ExpressionColumn(database, tableSchema,
+                                    last.getTableAlias(), tableColumnName);
+                            Expression joinExpr = new ExpressionColumn(database, joinSchema,
+                                    join.getTableAlias(), joinColumnName);
+                            Expression equal = new Comparison(session, Comparison.EQUAL, tableExpr,
+                                    joinExpr);
                             if (on == null) {
                                 on = equal;
                             } else {
@@ -1891,7 +1900,8 @@ public class PgSQLParser implements SQLParser {
         if (join.getJoin() != null) {
             String joinTable = Constants.PREFIX_JOIN + parseIndex; // 如：SYSTEM_JOIN_25
             // 嵌套TableFilter对应的DualTable没有字段
-            TableFilter n = new TableFilter(session, getDualTable(true), joinTable, rightsChecked, currentSelect);
+            TableFilter n = new TableFilter(session, getDualTable(true), joinTable, rightsChecked,
+                    currentSelect);
             n.setNestedJoin(join);
             join = n;
         }
@@ -2028,7 +2038,8 @@ public class PgSQLParser implements SQLParser {
                     read(")");
                 } else {
                     Expression right = readConcat();
-                    if (SysProperties.OLD_STYLE_OUTER_JOIN && readIf("(") && readIf("+") && readIf(")")) {
+                    if (SysProperties.OLD_STYLE_OUTER_JOIN && readIf("(") && readIf("+")
+                            && readIf(")")) {
                         // support for a subset of old-fashioned Oracle outer
                         // join with (+)
                         if (r instanceof ExpressionColumn && right instanceof ExpressionColumn) {
@@ -2146,7 +2157,8 @@ public class PgSQLParser implements SQLParser {
             AGroupConcat agg = null;
             if (equalsToken("GROUP_CONCAT", aggregateName)) {
                 boolean distinct = readIf("DISTINCT");
-                agg = new AGroupConcat(Aggregate.GROUP_CONCAT, readExpression(), currentSelect, distinct);
+                agg = new AGroupConcat(Aggregate.GROUP_CONCAT, readExpression(), currentSelect,
+                        distinct);
                 if (readIf("ORDER")) {
                     read("BY");
                     agg.setGroupConcatOrder(parseSimpleOrderList());
@@ -2246,7 +2258,8 @@ public class PgSQLParser implements SQLParser {
         }
         Function function = Function.getFunction(database, name);
         if (function == null) {
-            UserAggregate aggregate = getSchema(session.getCurrentSchemaName()).findAggregate(session, name);
+            UserAggregate aggregate = getSchema(session.getCurrentSchemaName()).findAggregate(session,
+                    name);
             if (aggregate != null) {
                 return readJavaAggregate(aggregate);
             }
@@ -2431,7 +2444,8 @@ public class PgSQLParser implements SQLParser {
             Sequence sequence = findSequence(schema, objectName);
             if (sequence != null) {
                 Function function = Function.getFunction(database, "CURRVAL");
-                function.setParameter(0, ValueExpression.get(ValueString.get(sequence.getSchema().getName())));
+                function.setParameter(0,
+                        ValueExpression.get(ValueString.get(sequence.getSchema().getName())));
                 function.setParameter(1, ValueExpression.get(ValueString.get(sequence.getName())));
                 function.doneWithParameters();
                 return function;
@@ -3127,7 +3141,8 @@ public class PgSQLParser implements SQLParser {
             }
             currentToken = "'";
             checkLiterals(true);
-            currentValue = ValueString.get(StringUtils.cache(result), database.getMode().treatEmptyStringsAsNull);
+            currentValue = ValueString.get(StringUtils.cache(result),
+                    database.getMode().treatEmptyStringsAsNull);
             parseIndex = i;
             currentTokenType = VALUE;
             return;
@@ -3141,7 +3156,8 @@ public class PgSQLParser implements SQLParser {
             result = sqlCommand.substring(begin, i);
             currentToken = "'";
             checkLiterals(true);
-            currentValue = ValueString.get(StringUtils.cache(result), database.getMode().treatEmptyStringsAsNull);
+            currentValue = ValueString.get(StringUtils.cache(result),
+                    database.getMode().treatEmptyStringsAsNull);
             parseIndex = i;
             currentTokenType = VALUE;
             return;
@@ -3159,7 +3175,8 @@ public class PgSQLParser implements SQLParser {
     private void checkLiterals(boolean text) {
         if (!session.getAllowLiterals()) {
             int allowed = database.getAllowLiterals();
-            if (allowed == Constants.ALLOW_LITERALS_NONE || (text && allowed != Constants.ALLOW_LITERALS_ALL)) {
+            if (allowed == Constants.ALLOW_LITERALS_NONE
+                    || (text && allowed != Constants.ALLOW_LITERALS_ALL)) {
                 throw DbException.get(ErrorCode.LITERALS_ARE_NOT_ALLOWED);
             }
         }
@@ -3927,7 +3944,8 @@ public class PgSQLParser implements SQLParser {
                 column.setSelectivity(selectivity);
             }
             SingleColumnResolver resolver = new SingleColumnResolver(column);
-            column.addCheckConstraint(session, templateColumn.getCheckConstraint(session, columnName), resolver);
+            column.addCheckConstraint(session, templateColumn.getCheckConstraint(session, columnName),
+                    resolver);
         }
         column.setComment(comment);
         column.setOriginalSQL(original);
@@ -4422,7 +4440,8 @@ public class PgSQLParser implements SQLParser {
         String name = readIdentifierWithSchema();
         CreateAggregate command = new CreateAggregate(session, getSchema());
         command.setForce(force);
-        if (isKeyword(name) || Function.getFunction(database, name) != null || getAggregateType(name) >= 0) {
+        if (isKeyword(name) || Function.getFunction(database, name) != null
+                || getAggregateType(name) >= 0) {
             throw DbException.get(ErrorCode.FUNCTION_ALIAS_ALREADY_EXISTS_1, name);
         }
         command.setName(name);
@@ -4939,7 +4958,8 @@ public class PgSQLParser implements SQLParser {
             if (readIf("STATEMENT_TIMEOUT")) {
                 readIfEqualOrTo();
                 return new NoOperation(session);
-            } else if (readIf("CLIENT_ENCODING") || readIf("CLIENT_MIN_MESSAGES") || readIf("JOIN_COLLAPSE_LIMIT")) {
+            } else if (readIf("CLIENT_ENCODING") || readIf("CLIENT_MIN_MESSAGES")
+                    || readIf("JOIN_COLLAPSE_LIMIT")) {
                 readIfEqualOrTo();
                 read();
                 return new NoOperation(session);
@@ -5104,7 +5124,8 @@ public class PgSQLParser implements SQLParser {
         if (schemaName != null) {
             return getSchema().getTableOrView(session, tableName);
         }
-        Table table = database.getSchema(session, session.getCurrentSchemaName()).findTableOrView(session, tableName);
+        Table table = database.getSchema(session, session.getCurrentSchemaName())
+                .findTableOrView(session, tableName);
         if (table != null) {
             return table;
         }
@@ -5122,7 +5143,8 @@ public class PgSQLParser implements SQLParser {
     }
 
     private FunctionAlias findFunctionAlias(String schema, String aliasName) {
-        FunctionAlias functionAlias = database.getSchema(session, schema).findFunction(session, aliasName);
+        FunctionAlias functionAlias = database.getSchema(session, schema).findFunction(session,
+                aliasName);
         if (functionAlias != null) {
             return functionAlias;
         }
@@ -5202,7 +5224,8 @@ public class PgSQLParser implements SQLParser {
                 String constraintName = readIdentifierWithSchema(table.getSchema().getName());
                 ifExists = readIfExists(ifExists);
                 checkSchema(table.getSchema());
-                AlterTableDropConstraint command = new AlterTableDropConstraint(session, getSchema(), ifExists);
+                AlterTableDropConstraint command = new AlterTableDropConstraint(session, getSchema(),
+                        ifExists);
                 command.setConstraintName(constraintName);
                 return command;
             } else if (readIf("FOREIGN")) {
@@ -5210,7 +5233,8 @@ public class PgSQLParser implements SQLParser {
                 read("KEY");
                 String constraintName = readIdentifierWithSchema(table.getSchema().getName());
                 checkSchema(table.getSchema());
-                AlterTableDropConstraint command = new AlterTableDropConstraint(session, getSchema(), false);
+                AlterTableDropConstraint command = new AlterTableDropConstraint(session, getSchema(),
+                        false);
                 command.setConstraintName(constraintName);
                 return command;
             } else if (readIf("INDEX")) {
@@ -5273,7 +5297,8 @@ public class PgSQLParser implements SQLParser {
             } else if (readIf("DROP")) {
                 // PostgreSQL compatibility
                 if (readIf("DEFAULT")) {
-                    AlterTableAlterColumn command = new AlterTableAlterColumn(session, table.getSchema());
+                    AlterTableAlterColumn command = new AlterTableAlterColumn(session,
+                            table.getSchema());
                     command.setTable(table);
                     command.setOldColumn(column);
                     command.setType(SQLStatement.ALTER_TABLE_ALTER_COLUMN_DEFAULT);
@@ -5333,7 +5358,8 @@ public class PgSQLParser implements SQLParser {
         throw getSyntaxError();
     }
 
-    private AlterTableAlterColumn parseAlterTableAlterColumnType(Table table, String columnName, Column column) {
+    private AlterTableAlterColumn parseAlterTableAlterColumnType(Table table, String columnName,
+            Column column) {
         Column newColumn = parseColumnForTable(columnName, column.isNullable());
         AlterTableAlterColumn command = new AlterTableAlterColumn(session, table.getSchema());
         command.setTable(table);

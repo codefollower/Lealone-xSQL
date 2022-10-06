@@ -17,9 +17,8 @@
  */
 package org.lealone.xsql.mysql.sql;
 
-import java.util.Map;
-
 import org.lealone.db.CommandParameter;
+import org.lealone.db.PluginBase;
 import org.lealone.db.schema.Sequence;
 import org.lealone.db.session.Session;
 import org.lealone.db.value.Value;
@@ -32,23 +31,15 @@ import org.lealone.sql.expression.ValueExpression;
 import org.lealone.sql.expression.condition.ConditionAndOr;
 import org.lealone.xsql.mysql.server.MySQLServerEngine;
 
-public class MySQLEngine implements SQLEngine {
+public class MySQLEngine extends PluginBase implements SQLEngine {
 
     public MySQLEngine() {
+        super(MySQLServerEngine.NAME);
     }
 
     @Override
     public SQLParser createParser(Session session) {
         return new MySQLParser((org.lealone.db.session.ServerSession) session);
-    }
-
-    @Override
-    public String getName() {
-        return MySQLServerEngine.NAME; // 可以一样
-    }
-
-    @Override
-    public void init(Map<String, String> config) {
     }
 
     @Override
@@ -74,10 +65,7 @@ public class MySQLEngine implements SQLEngine {
     @Override
     public IExpression createConditionAndOr(boolean and, IExpression left, IExpression right) {
         return new ConditionAndOr(and ? ConditionAndOr.AND : ConditionAndOr.OR,
-                (org.lealone.sql.expression.Expression) left, (org.lealone.sql.expression.Expression) right);
-    }
-
-    @Override
-    public void close() {
+                (org.lealone.sql.expression.Expression) left,
+                (org.lealone.sql.expression.Expression) right);
     }
 }

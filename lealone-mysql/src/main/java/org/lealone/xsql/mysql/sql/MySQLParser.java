@@ -540,7 +540,11 @@ public class MySQLParser implements SQLParser {
     private StatementBase parseBackup() {
         Backup command = new Backup(session);
         read("TO");
-        command.setFileName(readExpression());
+        command.setFileName(readString());
+        if (readIf("LAST")) {
+            read("DATE");
+            command.setLastDate(readString());
+        }
         return command;
     }
 

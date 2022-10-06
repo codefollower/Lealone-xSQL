@@ -33,6 +33,9 @@ public class MySQLUser extends User {
         if (userPasswordHash.length == 0 && getPasswordHash().length == 0) {
             return true;
         }
+        if (userPasswordHash.length != getPasswordHash().length) {
+            return false;
+        }
         byte[] hash = SecurityUtil.scramble411Sha1Pass(getPasswordHash(), salt);
         return Utils.compareSecure(userPasswordHash, hash);
     }
