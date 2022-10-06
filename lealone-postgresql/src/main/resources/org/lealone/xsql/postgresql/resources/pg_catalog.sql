@@ -33,7 +33,7 @@ as
 select
     id oid,
     cast(schema_name as varchar_ignorecase) nspname
-from information_schema.schemata;
+from information_schema.schemas;
 grant select on pg_catalog.pg_namespace to public;
 
 create table pg_catalog.pg_type(
@@ -92,7 +92,7 @@ as
 select
     id oid,
     cast(table_name as varchar_ignorecase) relname,
-    (select id from information_schema.schemata where schema_name = table_schema) relnamespace,
+    (select id from information_schema.schemas where schema_name = table_schema) relnamespace,
     case table_type when 'TABLE' then 'r' else 'v' end relkind,
     0 relam,
     cast(0 as float) reltuples,
@@ -104,7 +104,7 @@ union all
 select
     id oid,
     cast(index_name as varchar_ignorecase) relname,
-    (select id from information_schema.schemata where schema_name = table_schema) relnamespace,
+    (select id from information_schema.schemas where schema_name = table_schema) relnamespace,
     'i' relkind,
     0 relam,
     cast(0 as float) reltuples,
