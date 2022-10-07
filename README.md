@@ -50,10 +50,10 @@ Exit with Ctrl+C
 
 执行以下命令启动 MySQL 客户端:
 
-`mysql --no-beep -h localhost -P 9310 -u root`
+`mysql --no-beep -h 127.0.0.1 -P 9310 -u root`
 
 ```sql
-E:\lealone\lealone-xsql>mysql --no-beep -h localhost -P 9310 -u root -pzhh
+E:\lealone\lealone-xsql>mysql --no-beep -h 127.0.0.1 -P 9310 -u root
 Welcome to the MySQL monitor.  Commands end with ; or \g.
 Your MySQL connection id is 0
 Server version: 5.1.48-lealone-5.0.0-SNAPSHOT
